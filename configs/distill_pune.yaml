@@ -1,0 +1,66 @@
+# Pune Sentinel-2 L2A Distillation Configuration: OpenSR-SRGAN to TriSpecWave-Mamba-UQ
+
+# Architecture
+in_channels: 12
+out_channels: 12
+feature_dim: 64
+spectral_dim: 64
+naf_depth: 4
+spatial_depth: 2
+graph_heads: 4
+wavelet_levels: 1
+upsample_stages: 2
+scale: 4
+dropout: 0.1
+
+# Training
+batch_size: 32
+patch_size: 64
+output_size: 256
+mixed_precision: true
+learning_rate: 0.00005
+min_lr: 0.000001
+weight_decay: 0.00001
+grad_clip_norm: 1.0
+seed: 42
+max_steps: 2500
+log_every: 50
+val_every: 200
+save_every: 1000
+
+# Teacher & Distillation Loss
+teacher_preset: "RGB-NIR"
+teacher_bands: [1, 2, 3, 7]  # B2 (Blue), B3 (Green), B4 (Red), B8 (NIR)
+loss_weights:
+  teacher: 1.0
+  sensor: 0.05
+  sam: 0.01
+
+# Sentinel-2 L2A Spectral & Resolution Definition (12 bands, excluding B10)
+band_names: ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B9", "B11", "B12"]
+band_wavelengths_nm: [443, 490, 560, 665, 705, 740, 783, 842, 865, 945, 1610, 2190]
+band_gsd_m: [60, 10, 10, 10, 20, 20, 20, 10, 20, 60, 20, 20]
+groups:
+  native_10m: [1, 2, 3, 7]        # B2, B3, B4, B8
+  native_20m: [4, 5, 6, 8, 10, 11] # B5, B6, B7, B8A, B11, B12
+  native_60m: [0, 9]              # B1, B9
+
+# Region of Interest (Pune, Maharashtra, India)
+aoi:
+  name: "Pune"
+  latitude: 18.4388
+  longitude: 73.7728
+  radius_km: 10.0
+  max_cloud_cover: 10.0
+
+# Paths on Modal persistent volume
+paths:
+  volume_mount: "/mnt/pune"
+  raw_dir: "/mnt/pune/raw"
+  scenes_dir: "/mnt/pune/scenes"
+  patches_dir: "/mnt/pune/patches"
+  teacher_cache_dir: "/mnt/pune/teacher_cache"
+  checkpoints_dir: "/mnt/pune/checkpoints/edge_finetune"
+  logs_dir: "/mnt/pune/logs"
+  metrics_dir: "/mnt/pune/metrics"
+  outputs_dir: "/mnt/pune/outputs"

@@ -1,0 +1,13 @@
+name: sen2naip
+manifest: data/manifests/sen2naip.csv
+input_root: data/sen2naip
+target_root: data/sen2naip
+input_channels: 12
+target_channels: 12
+scale: 4
+split_column: split
+train_split: train
+val_split: val
+sampling_rate: 1.0
+cloud_fraction_max: 0.15
+

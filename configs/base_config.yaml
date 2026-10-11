@@ -1,0 +1,20 @@
+seed: 42
+device: auto
+precision: bf16
+amp: true
+batch_size: 2
+num_workers: 2
+epochs: 50
+learning_rate: 0.0002
+weight_decay: 0.00001
+grad_clip_norm: 1.0
+log_every: 20
+validate_every: 1
+checkpoint_dir: checkpoints
+output_dir: outputs
+wandb:
+  enabled: false
+  project: trispecwave-mamba-uq
+  entity: null
+  run_name: null
+

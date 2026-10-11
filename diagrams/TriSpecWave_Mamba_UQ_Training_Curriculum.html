@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="../tools/mermaid.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 30px;
+            background-color: #0b0f19;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: inline-block;
+            min-width: 100%;
+        }
+        #chart-wrapper {
+            display: inline-block;
+            background-color: #0f172a;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart-wrapper">
+        <pre class="mermaid">
+flowchart LR
+    classDef stageStyle fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef dataStyle fill:#064e3b,stroke:#34d399,stroke-width:1px,color:#ffffff;
+
+    subgraph CURRICULUM ["6-Stage Progressive Training Strategy"]
+        S0["Stage 0: Pretraining<br/>Representation Learning"]:::stageStyle
+        S1["Stage 1: Spatial SR<br/>10m B2,B3,B4,B8 → 2.5m"]:::stageStyle
+        S2["Stage 2: Wald Self-Supervision<br/>20m B5-B7,B8A,B11,B12 → 10m"]:::stageStyle
+        S3["Stage 3: Joint 12-Band SR<br/>Full 2.5m Fine-Tuning"]:::stageStyle
+        S4["Stage 4: Physics & Sensor Consistency<br/>PSF + Wavelet + Index Loss"]:::stageStyle
+        S5["Stage 5: Calibration<br/>UQ & Out-of-Distribution"]:::stageStyle
+    end
+
+    subgraph DATA_SOURCES ["Curated Datasets Stack"]
+        D0["SSL4EO-S12 v1.1 + EnMAP/SpectralEarth"]:::dataStyle
+        D1["SEN2NAIPv2 + SEN2VENµS + WorldStrat"]:::dataStyle
+        D2["CloudSEN12 / CloudSEN12+ (Cloud-free subset)"]:::dataStyle
+        D3["SEN2NEON (2,269 tiles) + Custom AVIRIS-NG ↔ S2 Pairs"]:::dataStyle
+        D4["Copernicus S2 L2A Global Stratified Corpus"]:::dataStyle
+        D5["OpenSR-Test + MuS2 + Diverse Biomes"]:::dataStyle
+    end
+
+    D0 --> S0
+    S0 --> S1
+    D1 --> S1
+    S1 --> S2
+    D2 --> S2
+    S2 --> S3
+    D3 --> S3
+    S3 --> S4
+    D4 --> S4
+    S4 --> S5
+    D5 --> S5
+        </pre>
+    </div>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

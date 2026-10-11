@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .block {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: 10px; padding: 6px 10px; font-size: 11px; font-weight: 600;
+      text-align: center; cursor: pointer; transition: all 0.18s ease;
+      border: 1.5px solid var(--border); position: relative;
+      min-width: 100px;
+    }
+    .block:hover { transform: scale(1.04); filter: brightness(1.12); }
+    .block .sublabel { font-size: 9px; font-weight: 400; opacity: 0.75; margin-top: 1px; }
+    .section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted-foreground); margin-bottom: 4px;
+    }
+    .tooltip-box {
+      display: none; position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: calc(100% + 8px); width: 200px; z-index: 100;
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; font-size: 10px; font-weight: 400; line-height: 1.5;
+      color: var(--foreground); pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .block:hover .tooltip-box { display: block; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased">
+<div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm" style="max-width:820px;margin:0 auto;">
+
+  <div class="mb-4">
+    <h2 class="text-[var(--foreground)] font-bold text-base">TriSpecWaveMambaUQ — 6.17M Params</h2>
+    <p class="text-[var(--muted-foreground)] text-xs">Sentinel-2 12-band · 64×64 → 256×256 (4× SR) · Uncertainty-aware · Hover blocks for details</p>
+  </div>
+
+  <div class="flex flex-wrap gap-3 mb-4 text-xs text-[var(--muted-foreground)]">
+    <span><span class="legend-dot mr-1" style="background:#3b82f6"></span>Encoder</span>
+    <span><span class="legend-dot mr-1" style="background:#8b5cf6"></span>Attention/Graph</span>
+    <span><span class="legend-dot mr-1" style="background:#10b981"></span>Refinement</span>
+    <span><span class="legend-dot mr-1" style="background:#f59e0b"></span>Wavelet</span>
+    <span><span class="legend-dot mr-1" style="background:#ef4444"></span>Upsampler</span>
+    <span><span class="legend-dot mr-1" style="background:#6b7280"></span>Output</span>
+    <span><span style="border-bottom: 2px dashed #a78bfa; display:inline-block; width:24px; margin-right:4px; vertical-align:middle;"></span>Skip path</span>
+  </div>
+
+  <div class="flex flex-col items-center gap-1">
+
+    <!-- INPUT -->
+    <div class="section-label">INPUT</div>
+    <div class="block" style="background:#1e3a5f; color:#93c5fd; border-color:#3b82f6; min-width:260px;">
+      12-band Sentinel-2 · 64×64
+      <span class="sublabel">B1–B12 · resampled to 10m grid</span>
+      <div class="tooltip-box">Shape [B, 12, 64, 64]. Bands grouped by native GSD: 10m (B2,B3,B4,B8), 20m (B5,B6,B7,B8A,B11,B12), 60m (B1,B9). All co-registered to the 10m grid.</div>
+    </div>
+
+    <div style="width:2px; height:14px; background:var(--border);"></div>
+
+    <!-- TRI-STREAM -->
+    <div class="section-label">TRI-STREAM PARALLEL ENCODING</div>
+    <div class="flex gap-3 items-start">
+      <div class="flex flex-col gap-2 items-center">
+        <div class="block" style="background:#1e3a5f; color:#93c5fd; border-color:#3b82f6; min-width:115px;">
+          10m GroupEncoder
+          <span class="sublabel">4ch→128ch · 2×Conv3×3</span>
+          <div class="tooltip-box">Bands B2,B3,B4,B8 (4 channels). Conv2d(4→128,k=3)+GELU+Conv2d(128→128,k=3). Output [B,128,H,W].</div>
+        </div>
+        <div class="block" style="background:#1e3a5f; color:#93c5fd; border-color:#3b82f6; min-width:115px;">
+          20m GroupEncoder
+          <span class="sublabel">6ch→128ch · 2×Conv3×3</span>
+          <div class="tooltip-box">Bands B5,B6,B7,B8A,B11,B12 (6 channels). Conv2d(6→128,k=3)+GELU+Conv2d(128→128,k=3). Output [B,128,H,W].</div>
+        </div>
+        <div class="block" style="background:#1e3a5f; color:#93c5fd; border-color:#3b82f6; min-width:115px;">
+          60m GroupEncoder
+          <span class="sublabel">2ch→128ch · 2×Conv3×3</span>
+          <div class="tooltip-box">Bands B1,B9 (2 channels). Conv2d(2→128,k=3)+GELU+Conv2d(128→128,k=3). Output [B,128,H,W].</div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2 items-center" style="padding-top:6px;">
+        <div class="block" style="background:#3b0764; color:#d8b4fe; border-color:#8b5cf6; min-width:145px;">
+          SpectralGraphMixer
+          <span class="sublabel">3-node graph · 4 attn heads</span>
+          <div class="tooltip-box">Treats 3 feature maps as graph nodes [B,3,128,H,W]. Learned adjacency (softmax edge logits). Q·K attention across nodes → weighted V aggregation → GroupNorm. Output [B,128,H,W].</div>
+        </div>
+        <div class="block" style="background:#3b0764; color:#d8b4fe; border-color:#8b5cf6; min-width:145px;">
+          CrossResGatedFusion
+          <span class="sublabel">Bilinear align + σ-weighted</span>
+          <div class="tooltip-box">Bilinear-aligns 20m+60m to 10m size. Concat all 3 → Conv1×1→GELU→Conv1×1 → softmax(2 gates) → weighted sum + Conv3×3 refine. Output [B,128,H,W].</div>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center" style="padding-top:28px;">
+        <div class="block" style="background:#4c1d95; color:#c4b5fd; border-color:#7c3aed; min-width:130px;">
+          SpectralMamba
+          <span class="sublabel">Per-pixel 12-band mixer</span>
+          <div class="tooltip-box">Each pixel's 12 bands treated as a 1D sequence. Value-embed + (wavelength_nm, GSD_m) positional embed → Conv1d(k=3) mixer → Sigmoid gate → mean-pool → Conv1×1 to 128ch. Output [B,128,H,W].</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:2px; height:12px; background:var(--border);"></div>
+
+    <!-- SUM + PRE-REFINE -->
+    <div class="block" style="background:#064e3b; color:#6ee7b7; border-color:#10b981; min-width:300px;">
+      Σ Sum → pre_refine NAFStack (4 blocks)
+      <span class="sublabel">graph+gated+spectral → [B,128,H,W] · LayerNorm+CA+SA</span>
+      <div class="tooltip-box">Element-wise sum of 3 streams. Then 4× NAFBlocks: LayerNorm2d → DW-Conv3×3 → Channel Attention (SimpleGate) → Conv1×1 → dropout + residual. Stabilizes fused features.</div>
+    </div>
+
+    <div style="width:2px; height:12px; background:var(--border);"></div>
+
+    <!-- WAVELET -->
+    <div class="section-label">HAAR WAVELET DECOMPOSITION</div>
+    <div class="flex gap-3 items-start">
+      <div class="block" style="background:#78350f; color:#fcd34d; border-color:#f59e0b; min-width:120px;">
+        HaarDWT2D
+        <span class="sublabel">→ LL [128,32,32] + LH/HL/HH [384,32,32]</span>
+        <div class="tooltip-box">1-level 2D Haar DWT. Splits [B,128,H,W] → Low subband [B,128,H/2,W/2] + High subband [B,384,H/2,W/2] (LH+HL+HH packed channel-wise).</div>
+      </div>
+      <div class="flex flex-col gap-2 items-center" style="padding-top:2px;">
+        <div class="block" style="background:#1c1917; color:#fcd34d; border-color:#d97706; min-width:140px;">
+          SpatialMamba (LL) ×2
+          <span class="sublabel">Horiz(1×7)+Vert(7×1) depthwise</span>
+          <div class="tooltip-box">2× SpatialMambaBlock on LOW freq: LayerNorm → project to u+gate → DW-Conv(1×7) + DW-Conv(7×1) → mix → tanh → sigmoid-gate → learnable scale residual. Captures long-range spatial dependencies.</div>
+        </div>
+        <div class="block" style="background:#1c1917; color:#fcd34d; border-color:#d97706; min-width:140px;">
+          StripConvStack (HH) ×2
+          <span class="sublabel">384ch → edge/texture refine</span>
+          <div class="tooltip-box">2× StripConvBlock on HIGH freq subbands (384ch). Strip depthwise convolutions + channel gating + residual. Preserves and enhances edge/texture information for SR.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:2px; height:12px; background:var(--border);"></div>
+
+    <div class="block" style="background:#78350f; color:#fcd34d; border-color:#f59e0b; min-width:280px;">
+      iHaarDWT → post_refine NAFStack (4 blocks)
+      <span class="sublabel">Reconstruct → [B,128,H,W] → further NAF refinement</span>
+      <div class="tooltip-box">Inverse Haar DWT fuses low+high subbands back to [B,128,H,W]. Then post_refine NAFStack (4 blocks) cleans reconstructed features before upsampling.</div>
+    </div>
+
+    <div style="width:2px; height:12px; background:var(--border);"></div>
+
+    <!-- UPSAMPLER -->
+    <div class="section-label">PROGRESSIVE 4× UPSAMPLER</div>
+    <div class="flex gap-2 items-center">
+      <div class="block" style="background:#7f1d1d; color:#fca5a5; border-color:#ef4444; min-width:135px;">
+        2× Stage 1
+        <span class="sublabel">Conv(128→512) → PixelShuffle(2) → NAFBlock</span>
+        <div class="tooltip-box">Conv2d(128→512,k=3) expands channels, then PixelShuffle(2) rearranges to spatial [B,128,128,128]. 1× NAFBlock refines. Doubles spatial resolution.</div>
+      </div>
+      <div class="text-[var(--muted-foreground)]">→</div>
+      <div class="block" style="background:#7f1d1d; color:#fca5a5; border-color:#ef4444; min-width:135px;">
+        2× Stage 2
+        <span class="sublabel">Conv(128→512) → PixelShuffle(2) → NAFBlock</span>
+        <div class="tooltip-box">Same as Stage 1. Another PixelShuffle 2× to reach [B,128,256,256]. Final NAFBlock at HR scale. Total: 4× upsampling (64→256).</div>
+      </div>
+    </div>
+
+    <div style="width:2px; height:12px; background:var(--border);"></div>
+
+    <!-- HEADS -->
+    <div class="section-label">UQ OUTPUT HEADS</div>
+    <div class="flex gap-3 items-center">
+      <div class="block" style="background:#1f2937; color:#9ca3af; border-color:#6b7280; min-width:120px;">
+        μ Head (mean)
+        <span class="sublabel">Conv1×1 → 12 bands · 256×256</span>
+        <div class="tooltip-box">Conv2d(128→12,1×1). Predicts SR reflectance mean. Shape [B,12,256,256].</div>
+      </div>
+      <div class="block" style="background:#1f2937; color:#9ca3af; border-color:#6b7280; min-width:120px;">
+        σ² Head (logvar)
+        <span class="sublabel">Conv1×1 → 12 bands · 256×256</span>
+        <div class="tooltip-box">Conv2d(128→12,1×1). Predicts per-pixel aleatoric uncertainty (log variance). Shape [B,12,256,256]. exp() gives variance.</div>
+      </div>
+    </div>
+
+    <div style="width:2px; height:12px; background:var(--border);"></div>
+
+    <!-- SKIP + FINAL -->
+    <div class="section-label">RESIDUAL SKIP + FINAL OUTPUT</div>
+    <div class="flex gap-3 items-center">
+      <div class="block" style="background:#1e3a5f; color:#93c5fd; border-color:#6366f1; min-width:120px;">
+        Skip Conv 1×1
+        <span class="sublabel">12→12 bilinear-upsampled</span>
+        <div class="tooltip-box">self.skip = Conv2d(12,12,1) applied to raw LR input → bilinear interpolate to 256×256. Preserves spectral baseline / prevents catastrophic forgetting.</div>
+      </div>
+      <div class="font-bold text-purple-400 text-lg">⊕</div>
+      <div class="block" style="background:#14532d; color:#86efac; border-color:#22c55e; min-width:170px;">
+        SR Output (mean + skip)
+        <span class="sublabel">[B, 12, 256, 256] · 2.5m Equivalent</span>
+        <div class="tooltip-box">mean = μ_head(high_res) + bilinear(skip(x)). Final 12-band SR output. Logvar returned separately for uncertainty maps and NLL loss.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Stats -->
+  <div class="mt-5 pt-4 border-t border-[var(--border)] grid grid-cols-4 gap-3 text-center">
+    <div>
+      <div class="text-[var(--foreground)] font-bold text-sm">6.17M</div>
+      <div class="text-[var(--muted-foreground)] text-xs">Parameters</div>
+    </div>
+    <div>
+      <div class="text-[var(--foreground)] font-bold text-sm">64→256</div>
+      <div class="text-[var(--muted-foreground)] text-xs">4× SR (10m→2.5m)</div>
+    </div>
+    <div>
+      <div class="text-[var(--foreground)] font-bold text-sm">128ch</div>
+      <div class="text-[var(--muted-foreground)] text-xs">Feature Dim</div>
+    </div>
+    <div>
+      <div class="text-[var(--foreground)] font-bold text-sm">3 streams</div>
+      <div class="text-[var(--muted-foreground)] text-xs">10m / 20m / 60m</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Core numerical and deep-learning stack
+numpy>=1.26
+torch>=2.2
+torchvision>=0.17
+PyYAML>=6.0
+tqdm>=4.66
+
+# Raster and Earth-observation I/O
+rasterio>=1.3
+xarray>=2024.1
+tifffile>=2024.2
+torchgeo>=0.6
+
+# API and validation
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+
+# Optional CUDA/graph acceleration. The code has PyTorch fallbacks.
+# Install a wheel matching the local PyTorch/CUDA build when needed:
+# mamba-ssm>=2.2.2
+# torch-geometric>=2.5
+# lpips>=0.1.4
+

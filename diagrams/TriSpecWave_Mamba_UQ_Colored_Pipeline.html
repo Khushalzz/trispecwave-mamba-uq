@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TriSpecWave-Mamba-UQ: Colored Architecture Pipeline</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #f8fafc;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 24px;
+    display: inline-block;
+    min-width: 100%;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .main-wrapper {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 28px 32px 32px 32px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+    display: inline-block;
+  }
+
+  .title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .title-bar h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .title-bar h1 span.model-name {
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 2px 10px;
+    border-radius: 8px;
+    border: 1px solid #dbeafe;
+  }
+
+  .title-bar p {
+    font-size: 13.5px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .legend-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pipeline-container {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* Column Box */
+  .col-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    width: 232px;
+    flex-shrink: 0;
+  }
+
+  .col-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .col-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  /* Individual Card */
+  .card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 13px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* Badges & Tags */
+  .pill-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    width: fit-content;
+    margin-bottom: 3px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Specific Model Color Badges */
+  .tag-wavelet {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+
+  .tag-mamba {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+
+  .tag-naf {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+
+  .tag-fusion {
+    background: #ffe4e6;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+  }
+
+  .tag-graph {
+    background: #ede9fe;
+    color: #6d28d9;
+    border: 1px solid #ddd6fe;
+  }
+
+  .tag-pixelshuffle {
+    background: #f3e8ff;
+    color: #7e22ce;
+    border: 1px solid #e9d5ff;
+  }
+
+  .tag-uq {
+    background: #ffedd5;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+  }
+
+  .tag-mtf {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+
+  .card-highlight {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .card-desc {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+
+  /* Between-card Vertical Arrows */
+  .v-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 14px;
+    margin: -4px 0;
+  }
+
+  /* Between-column Horizontal Arrows */
+  .h-arrow-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 18px;
+    padding: 0 2px;
+  }
+
+  /* Column 2 Subgrid */
+  .split-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .split-card {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 9px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .split-card .card-title {
+    font-size: 12px;
+  }
+
+  .split-card .card-desc {
+    font-size: 10px;
+  }
+
+  /* Column 6 MTF subcards */
+  .mtf-pill-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: #334155;
+    line-height: 1.35;
+  }
+
+  .mtf-pill-card strong {
+    color: #0f172a;
+  }
+
+  .mtf-formula {
+    color: #64748b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="main-wrapper" id="colored-pipeline-wrapper">
+  
+  <div class="title-bar">
+    <div>
+      <h1><span class="model-name">TriSpecWave-Mamba-UQ</span> Architecture Pipeline</h1>
+      <p>Multi-Resolution Sentinel-2 Super-Resolution with Explicit Model & Module Attribution</p>
+    </div>
+    <div class="legend-bar">
+      <span class="legend-item tag-wavelet">Wavelet / DWT</span>
+      <span class="legend-item tag-mamba">Mamba (VSSD / Spectral)</span>
+      <span class="legend-item tag-naf">NAFBlock / StripConv</span>
+      <span class="legend-item tag-graph">Spectral Graph</span>
+      <span class="legend-item tag-pixelshuffle">PixelShuffle</span>
+      <span class="legend-item tag-uq">UQ Heads</span>
+      <span class="legend-item tag-mtf">PSF / MTF Model</span>
+    </div>
+  </div>
+
+  <div class="pipeline-container">
+    
+    <!-- COLUMN 1: SATELLITE INPUTS -->
+    <div class="col-box">
+      <div class="col-header">1 · Satellite Inputs</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">10 m · Spatial detail</div>
+          <div class="card-highlight">B2 · B3 · B4 · B8</div>
+          <div class="card-desc">Blue · Green · Red · NIR<br/>(Sharp edges & terrain borders)</div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">20 m · Spectral detail</div>
+          <div class="card-highlight">B5 · B6 · B7 · B8A · B11 · B12</div>
+          <div class="card-desc">Red-edge · NIR · SWIR<br/>(Crop chlorophyll & soil moisture)</div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">60 m · Context</div>
+          <div class="card-highlight">B1 · B9</div>
+          <div class="card-desc">Atmospheric / broad context<br/>(Aerosol & water vapor column)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 2: SPECIALIZED FEATURE EXTRACTION -->
+    <div class="col-box" style="width: 260px;">
+      <div class="col-header">2 · Specialized Feature Extraction</div>
+      <div class="col-content">
+        
+        <div class="card">
+          <span class="pill-tag tag-wavelet">2D DWT / Wavelet Transform</span>
+          <div class="card-title">Frequency Decomposition</div>
+          <div class="card-desc">Separates low-frequency (LL) from high-frequency edges (LH, HL, HH).</div>
+        </div>
+
+        <div class="split-row">
+          <div class="split-card">
+            <span class="pill-tag tag-mamba" style="font-size: 9.5px; padding: 1px 5px;">VSSD / Mamba-2</span>
+            <div class="card-title">LL Branch</div>
+            <div class="card-desc">Long-range spatial context (fields, rivers, urban).</div>
+          </div>
+          <div class="split-card">
+            <span class="pill-tag tag-naf" style="font-size: 9.5px; padding: 1px 5px;">NAF + StripConv</span>
+            <div class="card-title">HF Branch</div>
+            <div class="card-desc">Directional 1×K & K×1 linear edges & roads.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="pill-tag tag-mamba">Spectral Encoder / Spectral Mamba</span>
+          <div class="card-title">Wavelength Sequence Modeling</div>
+          <div class="card-desc">Learns relationships between S2 bands using central λ and GSD embeddings.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 3: MULTI-RESOLUTION FUSION -->
+    <div class="col-box" style="width: 240px;">
+      <div class="col-header">3 · Multi-Resolution Fusion</div>
+      <div class="col-content">
+        
+        <div class="card">
+          <span class="pill-tag tag-fusion">Cross-Resolution Gated Fusion</span>
+          <div class="card-title">10m-Guided Spatial Fusion</div>
+          <div class="card-desc">Sharper 10 m features guide spatial placement of coarser 20m & 60m bands.</div>
+        </div>
+        
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <span class="pill-tag tag-graph">Spectral Graph Mixer</span>
+          <div class="card-title">Inter-Band Graph Attention</div>
+          <div class="card-desc">Treats bands as connected nodes across VIS, Red-edge, NIR, and SWIR.</div>
+        </div>
+
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <span class="pill-tag tag-wavelet">Cross-Frequency Fusion + IDWT</span>
+          <div class="card-title">Inverse Wavelet Synthesis</div>
+          <div class="card-desc">Combines processed LL and HF components back into spatial map.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 4: PROGRESSIVE RECONSTRUCTION -->
+    <div class="col-box" style="width: 236px;">
+      <div class="col-header">4 · Progressive Reconstruction</div>
+      <div class="col-content">
+        
+        <div class="card">
+          <span class="pill-tag tag-pixelshuffle">PixelShuffle ×2</span>
+          <div class="card-title">10 m → 5 m Upsampling</div>
+          <div class="card-desc">First progressive ×2 sub-pixel reconstruction step.</div>
+        </div>
+
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <span class="pill-tag tag-naf">NAFBlock / NAFNet Refinement</span>
+          <div class="card-title">5 m Mid-Scale Refinement</div>
+          <div class="card-desc">Denoising, edge restoration, and local detail recovery before final scale.</div>
+        </div>
+
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <span class="pill-tag tag-pixelshuffle">PixelShuffle ×2</span>
+          <div class="card-title">5 m → 2.5 m Target Scale</div>
+          <div class="card-desc">Final ×2 reconstruction yielding 2.5 m target GSD features.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 5: MODEL OUTPUTS -->
+    <div class="col-box" style="width: 240px;">
+      <div class="col-header">5 · Model Outputs</div>
+      <div class="col-content">
+        
+        <div class="card">
+          <div class="card-title">12-Band SR Reflectance @ 2.5 m</div>
+          <div class="card-highlight">μ_B1 … μ_B12 Mean Predictions</div>
+          <div class="card-desc">Razor-sharp multispectral imagery across VIS, Red-edge, NIR & SWIR.</div>
+        </div>
+
+        <div class="card">
+          <span class="pill-tag tag-uq">Heteroscedastic Uncertainty Head</span>
+          <div class="card-title">12 Aleatoric UQ Maps (σ²)</div>
+          <div class="card-desc">Band-specific variance showing observation uncertainty (Low at 10m, High at 60m).</div>
+        </div>
+
+        <div class="card">
+          <span class="pill-tag tag-uq">MC-Dropout / Stochastic Mamba</span>
+          <div class="card-title">Epistemic Uncertainty Map</div>
+          <div class="card-desc">Measures variation across stochastic model passes to flag OOD / clouds.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 6: PHYSICS CONSISTENCY -->
+    <div class="col-box" style="width: 244px;">
+      <div class="col-header">6 · Physics Consistency</div>
+      <div class="col-content">
+        
+        <div class="card">
+          <span class="pill-tag tag-mtf">MTF / PSF Sensor Model</span>
+          <div class="card-title">Sensor Optics Verification</div>
+          <div class="card-desc">Degrades 2.5 m predictions back to sensor scales to guarantee physical truth.</div>
+        </div>
+
+        <div class="mtf-pill-card">
+          <strong>10 m bands:</strong> 2.5 m → PSF → ↓4
+          <div class="mtf-formula">Compare with B2, B3, B4, B8</div>
+        </div>
+
+        <div class="mtf-pill-card">
+          <strong>20 m bands:</strong> 2.5 m → PSF → ↓8
+          <div class="mtf-formula">Compare with B5-B7, B8A, B11, B12</div>
+        </div>
+
+        <div class="mtf-pill-card">
+          <strong>60 m bands:</strong> 2.5 m → PSF → ↓24
+          <div class="mtf-formula">Compare with B1, B9</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

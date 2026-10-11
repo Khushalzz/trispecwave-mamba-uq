@@ -1,0 +1,10 @@
+name: liss4_domain_adaptation
+manifest: data/manifests/liss4_pairs.csv
+input_root: data/liss4
+target_root: data/liss4
+freeze_backbone_epochs: 2
+learning_rate: 0.00002
+scale: 2
+adaptation_loss_weight: 0.25
+india_validation_split: validation
+

@@ -1,0 +1,23 @@
+name: trispecwave-mamba-uq
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pytorch>=2.2
+  - torchvision
+  - pytorch-cuda=12.1
+  - numpy
+  - pyyaml
+  - rasterio
+  - gdal
+  - xarray
+  - tifffile
+  - fastapi
+  - uvicorn
+  - pip
+  - pip:
+      - torchgeo>=0.6
+      # Install mamba-ssm and torch-geometric using wheels compatible with CUDA.
+

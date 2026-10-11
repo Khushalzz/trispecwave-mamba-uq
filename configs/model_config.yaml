@@ -1,0 +1,17 @@
+in_channels: 12
+out_channels: 12
+feature_dim: 64
+naf_depth: 4
+spatial_depth: 2
+spectral_dim: 32
+graph_heads: 4
+wavelet_levels: 1
+upsample_stages: 2
+dropout: 0.10
+band_wavelengths_nm: [443, 490, 560, 665, 705, 740, 783, 842, 865, 945, 1610, 2190]
+band_gsd_m: [60, 10, 10, 10, 20, 20, 20, 10, 20, 60, 20, 20]
+groups:
+  native_10m: [1, 2, 3, 7]
+  native_20m: [4, 5, 6, 8, 10, 11]
+  native_60m: [0, 9]
+

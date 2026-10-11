@@ -1,0 +1,26 @@
+in_channels: 12
+out_channels: 12
+feature_dim: 128
+spectral_dim: 64
+naf_depth: 8
+spatial_depth: 4
+graph_heads: 4
+wavelet_levels: 1
+upsample_stages: 2
+scale: 4
+dropout: 0.05
+
+max_updates: 5000
+warmup_updates: 250
+micro_batch_size: 4
+accumulation_steps: 4
+effective_batch_size: 16
+learning_rate: 0.0002
+min_lr: 0.000001
+weight_decay: 0.0001
+grad_clip_norm: 1.0
+log_every_updates: 25
+val_every_updates: 250
+
+band_wavelengths_nm: [443, 490, 560, 665, 705, 740, 783, 842, 865, 945, 1610, 2190]
+band_gsd_m: [60, 10, 10, 10, 20, 20, 20, 10, 20, 60, 20, 20]

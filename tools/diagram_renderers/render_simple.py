@@ -1,0 +1,144 @@
+import os
+from playwright.sync_api import sync_playwright
+
+simplified_mmd = """flowchart TD
+    classDef titleStyle fill:#0f172a,stroke:#38bdf8,stroke-width:3px,color:#ffffff,font-weight:bold,font-size:18px;
+    classDef nameKeyStyle fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#e0e7ff;
+    classDef inputStyle fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef encStyle fill:#0f766e,stroke:#2dd4bf,stroke-width:2px,color:#ffffff;
+    classDef fuseStyle fill:#b45309,stroke:#fcd34d,stroke-width:2px,color:#ffffff;
+    classDef upStyle fill:#4338ca,stroke:#a5b4fc,stroke-width:2px,color:#ffffff;
+    classDef outStyle fill:#065f46,stroke:#34d399,stroke-width:3px,color:#ffffff;
+    classDef checkStyle fill:#991b1b,stroke:#fca5a5,stroke-width:2px,color:#ffffff;
+
+    TITLE["<b>TriSpecWave-Mamba-UQ</b><br/>All-12-Band Physics-Constrained Sentinel-2 Super-Resolution (10m/20m/60m → 2.5m)"]:::titleStyle
+
+    subgraph DECODE_NAME ["NAME BREAKDOWN: What 'TriSpecWave-Mamba-UQ' Stands For"]
+        K1["<b>TriSpec</b><br/>3 Native Spectral Divisions<br/>(10m, 20m, 60m) & 3 Domain Heads"]:::nameKeyStyle
+        K2["<b>Wave</b><br/>2D Discrete Wavelet (DWT)<br/>Frequency-split edge details"]:::nameKeyStyle
+        K3["<b>Mamba</b><br/>Spatial VSSD Mamba +<br/>Spectral Wavelength Mamba"]:::nameKeyStyle
+        K4["<b>UQ</b><br/>Uncertainty Quantification<br/>(12 Band-Specific Variance Maps)"]:::nameKeyStyle
+    end
+
+    subgraph IN ["1. NATIVE SATELLITE INPUTS (TriSpec: No early bicubic stretching)"]
+        IN_10M["<b>10m High-Res Bands</b> (4 Bands)<br/>B2 (Blue), B3 (Green), B4 (Red), B8 (NIR)<br/><i>Sharp geometry & boundaries</i>"]:::inputStyle
+        IN_20M["<b>20m Red-Edge & SWIR</b> (6 Bands)<br/>B5, B6, B7, B8A, B11, B12<br/><i>Vegetation red-edge & soil moisture</i>"]:::inputStyle
+        IN_60M["<b>60m Atmospheric</b> (2 Bands)<br/>B1 (Coastal Aerosol), B9 (Water Vapor)<br/><i>Atmospheric haze & vapor context</i>"]:::inputStyle
+    end
+
+    subgraph ENC ["2. ASYMMETRIC ENCODERS (Wavelet + Mamba)"]
+        E1["<b>Wavelet + Spatial Mamba (10m)</b><br/>• DWT splits coarse (LL) and fine edges (HF)<br/>• 2D Visual State Space (VSSD Mamba)"]:::encStyle
+        E2["<b>Spectral Wavelength Mamba (20m)</b><br/>• Band tokens embedded by physical wavelength (nm)<br/>• Bidirectional Spectral Mamba + Graph Mixer"]:::encStyle
+        E3["<b>Atmospheric Context Encoder (60m)</b><br/>• Lightweight Mamba/MLP global haze prior"]:::encStyle
+    end
+
+    subgraph FUSION ["3. GUIDED CROSS-SCALE FUSION (Coloring Inside Sharp Outlines)"]
+        FUSE["<b>Progressive Multi-Resolution Fusion</b><br/>• 60m → 20m (guided by 20m spectral features)<br/>• 20m → 10m (10m B4/B8 sharp outlines allocate 20m colors)"]:::fuseStyle
+    end
+
+    subgraph DECODER ["4. PROGRESSIVE SUPER-RESOLUTION ZOOM"]
+        STEP1["<b>Stage 1: Zoom 10m → 5m</b><br/>PixelShuffle (×2) + NAF Residual Refinement"]:::upStyle
+        STEP2["<b>Stage 2: Zoom 5m → 2.5m</b><br/>PixelShuffle (×2) + Wavelet Synthesis + Cross-Band Consistency"]:::upStyle
+    end
+
+    subgraph OUT ["5. DUAL OUTPUTS: PREDICTION + UNCERTAINTY (UQ)"]
+        SR["<b>12 Super-Resolved Bands @ 2.5m (μ)</b><br/>Split Specialized Heads: VIS (RGB) | Red-Edge/NIR | SWIR"]:::outStyle
+        UQ["<b>12-Band Uncertainty Maps (σ²) [UQ]</b><br/>10m bands: Low σ² | 20m: Medium σ² | 60m: High σ²"]:::outStyle
+    end
+
+    subgraph CHECK ["6. PHYSICAL SENSOR CONSISTENCY (Ground Reality Check)"]
+        CONSISTENCY["<b>Native Sensor PSF Downsampling</b><br/>Blurring 2.5m output through satellite lens model (MTF)<br/>MUST match raw 10m, 20m, 60m sensor readings"]:::checkStyle
+    end
+
+    TITLE --> DECODE_NAME
+    DECODE_NAME --> IN
+
+    IN_10M --> E1
+    IN_20M --> E2
+    IN_60M --> E3
+
+    E1 --> FUSE
+    E2 --> FUSE
+    E3 --> FUSE
+
+    FUSE --> STEP1
+    STEP1 --> STEP2
+
+    STEP2 --> SR
+    STEP2 --> UQ
+
+    SR -.->|"Physical MTF verification"| CONSISTENCY
+"""
+
+os.makedirs("diagrams", exist_ok=True)
+with open(r"diagrams\Simplified_Model_Overview.mmd", "w", encoding="utf-8") as f:
+    f.write(simplified_mmd.strip())
+
+html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="../tools/mermaid.min.js"></script>
+    <style>
+        body {{
+            margin: 0;
+            padding: 40px;
+            background-color: #0b0f19;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: inline-block;
+            min-width: 100%;
+        }}
+        #chart-wrapper {{
+            display: inline-block;
+            background-color: #0f172a;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+        }}
+    </style>
+</head>
+<body>
+    <div id="chart-wrapper">
+        <pre class="mermaid">
+{simplified_mmd.strip()}
+        </pre>
+    </div>
+    <script>
+        mermaid.initialize({{
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            flowchart: {{
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }}
+        }});
+    </script>
+</body>
+</html>"""
+
+with open(r"diagrams\Simplified_Model_Overview.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(
+        executable_path=r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+        headless=True
+    )
+    context = browser.new_context(viewport={"width": 2600, "height": 3200}, device_scale_factor=2)
+    page = context.new_page()
+    page.goto(os.path.abspath(r"diagrams\Simplified_Model_Overview.html"))
+    page.wait_for_selector(".mermaid svg", timeout=15000)
+    
+    svg_element = page.locator(".mermaid svg")
+    with open(r"diagrams\Simplified_Model_Overview.svg", "w", encoding="utf-8") as f:
+        f.write(svg_element.evaluate("el => el.outerHTML"))
+        
+    wrapper = page.locator("#chart-wrapper")
+    box = wrapper.bounding_box()
+    page.set_viewport_size({"width": int(box["x"] + box["width"] + 60), "height": int(box["y"] + box["height"] + 60)})
+    wrapper.screenshot(path=r"diagrams\Simplified_Model_Overview.png")
+    browser.close()
+
+print("Updated diagram with architecture name & breakdown rendered successfully!")

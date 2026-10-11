@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.venv/
+data/raw/
+data/processed/
+outputs/
+wandb/
+*.tif
+*.tiff
+
+# External submodules & build logs
+sen2neon_tmp/
+modal_cache_out.txt
+
+# Root large image dumps (>80MB)
+six_patch_*.png
+stage5_*.png
+
+# Checkpoints whitelist: only track verified model weights
+checkpoints/*
+!checkpoints/sen2neon_6m_best.pt
+!checkpoints/sen2neon_unet_adapter_epoch_3.pt
+!checkpoints/README.md

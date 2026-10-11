@@ -1,0 +1,33 @@
+{
+  "evaluation_summary": {
+    "evaluation_patch_count": 50,
+    "student_parameter_count": 1117178,
+    "gpu_peak_vram_mb": 270.51,
+    "avg_teacher_inference_ms": 48.01,
+    "avg_student_inference_ms": 25.42,
+    "known_bicubic_baseline_reference_db": 35.38
+  },
+  "labels_and_disclaimer": {
+    "srgan_status": "Pseudo-target (pretrained RGB-NIR SRGAN teacher supervision)",
+    "student_12band_status": "Model-estimated surface reflectance",
+    "super_resolution_nature": "Super-resolved prediction (10m -> 2.5m progressive), not guaranteed physical 2.5m measurement"
+  },
+  "bicubic_baseline_vs_teacher": {
+    "mean_psnr_db": 29.85,
+    "mean_ssim": 0.8016,
+    "mean_sam_rad": 0.0242,
+    "mean_ndvi_mae": 0.0226
+  },
+  "tri_spec_wave_student_vs_teacher": {
+    "mean_psnr_db": 31.6,
+    "mean_ssim": 0.8554,
+    "mean_sam_rad": 0.0206,
+    "mean_ndvi_mae": 0.0161
+  },
+  "per_band_student_mae": {
+    "B2": 0.00658,
+    "B3": 0.00717,
+    "B4": 0.00854,
+    "B8": 0.00737
+  }
+}

@@ -1,0 +1,400 @@
+import os
+from playwright.sync_api import sync_playwright
+
+html_code = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TriSpecWave-Mamba-UQ Super-Resolution Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #f1f5f9;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 30px;
+    display: inline-block;
+    min-width: 100%;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .main-wrapper {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 32px 36px 36px 36px;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    display: inline-block;
+  }
+
+  .title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .title-bar h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+
+  .title-bar p {
+    font-size: 13.5px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .badge-tag {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+
+  .pipeline-container {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* Column Box */
+  .col-box {
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    flex-shrink: 0;
+  }
+
+  .col-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  .col-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  /* Individual Card */
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+  }
+
+  .card-highlight {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 2px;
+  }
+
+  .card-desc {
+    font-size: 11.5px;
+    color: #6b7280;
+    line-height: 1.35;
+    margin-top: 4px;
+  }
+
+  /* Between-card Vertical Arrows */
+  .v-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #9ca3af;
+    font-size: 14px;
+    margin: -4px 0;
+  }
+
+  /* Between-column Horizontal Arrows */
+  .h-arrow-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 18px;
+    padding: 0 2px;
+  }
+
+  /* Column 2 Subgrid */
+  .split-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .split-card {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .split-card .card-title {
+    font-size: 12.5px;
+  }
+
+  .split-card .card-desc {
+    font-size: 10.5px;
+  }
+
+  /* Column 6 MTF subcards */
+  .mtf-pill-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: #374151;
+    line-height: 1.4;
+  }
+
+  .mtf-pill-card strong {
+    color: #111827;
+  }
+
+  .mtf-formula {
+    color: #4b5563;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="main-wrapper" id="diagram-wrapper">
+  <div class="title-bar">
+    <div>
+      <h1>TriSpecWave-Mamba-UQ Architecture</h1>
+      <p>Sentinel-2 Multi-Resolution Super-Resolution (10 m / 20 m / 60 m → 2.5 m) with Physical MTF Consistency</p>
+    </div>
+    <div class="badge-tag">Horizontal Single-Page Overview</div>
+  </div>
+
+  <div class="pipeline-container">
+    
+    <!-- COLUMN 1 -->
+    <div class="col-box">
+      <div class="col-header">1 · Satellite Inputs</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">10 m · Spatial detail</div>
+          <div class="card-highlight">B2 · B3 · B4 · B8</div>
+          <div class="card-desc">Blue · Green · Red · NIR</div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">20 m · Spectral detail</div>
+          <div class="card-highlight">B5 · B6 · B7 · B8A · B11 · B12</div>
+          <div class="card-desc">Red-edge · NIR · SWIR</div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">60 m · Context</div>
+          <div class="card-highlight">B1 · B9</div>
+          <div class="card-desc">Atmospheric / broad context</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 2 -->
+    <div class="col-box" style="width: 250px;">
+      <div class="col-header">2 · Specialized Feature Extraction</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">Wavelet DWT</div>
+          <div class="card-desc">Separate broad information from edges</div>
+        </div>
+
+        <div class="split-row">
+          <div class="split-card">
+            <div class="card-title">LL branch</div>
+            <div class="card-desc">Global landscape context</div>
+          </div>
+          <div class="split-card">
+            <div class="card-title">HF branch</div>
+            <div class="card-desc">Edges & linear structures</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Spectral encoder</div>
+          <div class="card-desc">Learns relationships between wavelengths</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 3 -->
+    <div class="col-box">
+      <div class="col-header">3 · Multi-Resolution Fusion</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">Cross-resolution gated fusion</div>
+          <div class="card-desc">10 m structure guides coarse bands</div>
+        </div>
+        
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <div class="card-title">Spectral graph mixer</div>
+          <div class="card-desc">Connect related bands</div>
+        </div>
+
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <div class="card-title">Cross-frequency fusion + IDWT</div>
+          <div class="card-desc">Recombine context and edges</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 4 -->
+    <div class="col-box">
+      <div class="col-header">4 · Progressive Reconstruction</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">10 m → 5 m</div>
+          <div class="card-desc">First ×2 reconstruction</div>
+        </div>
+
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <div class="card-title">5 m refinement</div>
+          <div class="card-desc">Correct features before final scale</div>
+        </div>
+
+        <div class="v-arrow">↓</div>
+
+        <div class="card">
+          <div class="card-title">5 m → 2.5 m</div>
+          <div class="card-desc">Final ×2 reconstruction</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 5 -->
+    <div class="col-box">
+      <div class="col-header">5 · Model Outputs</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">12-band SR image @ 2.5 m</div>
+          <div class="card-desc">Sharper multispectral output</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">12 aleatoric UQ maps</div>
+          <div class="card-desc">Uncertainty caused by the observation</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Epistemic UQ</div>
+          <div class="card-desc">Uncertainty caused by the model</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-arrow-col">→</div>
+
+    <!-- COLUMN 6 -->
+    <div class="col-box" style="width: 240px;">
+      <div class="col-header">6 · Physics Consistency</div>
+      <div class="col-content">
+        <div class="card">
+          <div class="card-title">Sensor MTF / PSF check</div>
+          <div class="card-desc">Can the output reproduce the original satellite observation?</div>
+        </div>
+
+        <div class="mtf-pill-card">
+          <strong>10 m bands:</strong> 2.5 m → PSF → ↓4
+          <div class="mtf-formula">→ compare</div>
+        </div>
+
+        <div class="mtf-pill-card">
+          <strong>20 m bands:</strong> 2.5 m → PSF → ↓8
+          <div class="mtf-formula">→ compare</div>
+        </div>
+
+        <div class="mtf-pill-card">
+          <strong>60 m bands:</strong> 2.5 m → PSF → ↓24
+          <div class="mtf-formula">→ compare</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
+"""
+
+html_path = os.path.abspath("diagrams/Sentinel2_Video_Exact_Pipeline.html")
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_code)
+
+png_path = os.path.abspath("diagrams/Sentinel2_Video_Exact_Pipeline.png")
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(
+        executable_path=r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+        headless=True
+    )
+    context = browser.new_context(viewport={"width": 2600, "height": 1200}, device_scale_factor=2)
+    page = context.new_page()
+    page.goto(f"file:///{html_path}")
+    page.wait_for_selector("#diagram-wrapper")
+    
+    wrapper = page.locator("#diagram-wrapper")
+    box = wrapper.bounding_box()
+    page.set_viewport_size({"width": int(box["x"] + box["width"] + 60), "height": int(box["y"] + box["height"] + 60)})
+    wrapper.screenshot(path=png_path)
+    browser.close()
+
+print(f"Generated exact video diagram: {png_path} ({os.path.getsize(png_path)} bytes)")

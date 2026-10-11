@@ -1,0 +1,10 @@
+name: sen2neon
+manifest: data/manifests/sen2neon.csv
+input_root: data/sen2neon
+target_root: data/sen2neon
+input_channels: 12
+target_channels: 12
+scale: 4
+band_alignment: wavelength_nearest
+sampling_rate: 1.0
+
