@@ -3,7 +3,7 @@ __pycache__/
 .venv/
 data/raw/
 data/processed/
-outputs/
+outputs/*
 wandb/
 *.tif
 *.tiff
@@ -21,3 +21,8 @@ checkpoints/*
 !checkpoints/sen2neon_6m_best.pt
 !checkpoints/sen2neon_unet_adapter_epoch_3.pt
 !checkpoints/README.md
+
+# Whitelist evaluation figures for paper and README
+!outputs/pune_comparison.png
+!outputs/pune_uncertainty.png
+!outputs/pune_student_rgbn.png

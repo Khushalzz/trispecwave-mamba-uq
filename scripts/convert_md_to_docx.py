@@ -2,9 +2,11 @@
 """
 Converts docs/complete_paper_manuscript.md into a publication-grade Microsoft Word (.docx) document.
 Features:
+- AIES Mini Project Paper academic layout
 - IEEE / Professional Academic Paper typography (Times New Roman / Calibri / Consolas)
 - Deep Navy and Slate Blue color palette for headings
 - High-quality native Word tables with styled headers, alternating row shading, and cell borders
+- Embedded image figures (Figures 1-5) with centered styling and captions
 - Cleanly formatted display equations and inline math using Unicode mathematical typography
 - Shaded, monospaced ASCII architecture boxes
 - Professional margins, line spacing, and hanging indents for references
@@ -162,7 +164,7 @@ def build_docx(md_path, docx_path):
 
     doc = Document()
 
-    # Set page margins: 0.85 inch for a clean academic journal feel
+    # Set page margins: 0.85 inch for a clean academic feel
     for section in doc.sections:
         section.top_margin = Inches(0.85)
         section.bottom_margin = Inches(0.85)
@@ -184,6 +186,8 @@ def build_docx(md_path, docx_path):
     in_code_block = False
     code_lines = []
 
+    repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(md_path)))
+
     while i < total_lines:
         line = lines[i]
         stripped = line.strip()
@@ -197,7 +201,6 @@ def build_docx(md_path, docx_path):
                 continue
             else:
                 in_code_block = False
-                # Render code block as shaded table cell for clean boxing
                 tbl = doc.add_table(rows=1, cols=1)
                 tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
                 cell = tbl.cell(0, 0)
@@ -235,6 +238,36 @@ def build_docx(md_path, docx_path):
             p.paragraph_format.space_after = Pt(6)
             pBdr = parse_xml(f'<w:pBdr {nsdecls("w")}><w:bottom w:val="single" w:sz="6" w:space="1" w:color="E2E8F0"/></w:pBdr>')
             p._p.get_or_add_pPr().append(pBdr)
+            i += 1
+            continue
+
+        # Handle Embedded Figures ![Caption](image_path)
+        img_match = re.match(r'^!\[(.*?)\]\((.*?)\)$', stripped)
+        if img_match:
+            img_caption = img_match.group(1)
+            raw_img_path = img_match.group(2)
+            
+            # Resolve image path
+            resolved_img = None
+            candidates = [
+                raw_img_path,
+                os.path.join(repo_dir, raw_img_path),
+                os.path.join(os.getcwd(), raw_img_path),
+                os.path.join(os.path.dirname(md_path), raw_img_path)
+            ]
+            for c in candidates:
+                if os.path.exists(c):
+                    resolved_img = c
+                    break
+
+            if resolved_img:
+                p_img = doc.add_paragraph()
+                p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                p_img.paragraph_format.space_before = Pt(10)
+                p_img.paragraph_format.space_after = Pt(2)
+                p_img.paragraph_format.keep_with_next = True
+                run_img = p_img.add_run()
+                run_img.add_picture(resolved_img, width=Inches(5.5))
             i += 1
             continue
 
@@ -278,7 +311,7 @@ def build_docx(md_path, docx_path):
             p.paragraph_format.space_after = Pt(8)
             run = p.add_run(title_text)
             run.font.name = "Times New Roman"
-            run.font.size = Pt(20)
+            run.font.size = Pt(18)
             run.bold = True
             run.font.color.rgb = RGBColor(*NAVY)
             i += 1
@@ -422,9 +455,15 @@ def build_docx(md_path, docx_path):
         p.paragraph_format.space_after = Pt(4)
         p.paragraph_format.line_spacing = 1.15
 
-        if stripped.startswith('**Khushalzz et al.**') or stripped.startswith('*Laboratory for Geospatial'):
+        # Check if AIES Header block (under title)
+        if 'AIES MINI PROJECT' in stripped or 'Department of Computer Science' in stripped or 'Academic Year:' in stripped or 'Authors:' in stripped:
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            add_formatted_text_to_para(p, stripped, base_font="Times New Roman", base_size=11, base_color=MUTED)
+            add_formatted_text_to_para(p, stripped, base_font="Times New Roman", base_size=10.5, base_color=MUTED)
+        elif stripped.startswith('**Figure'):
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p.paragraph_format.space_before = Pt(2)
+            p.paragraph_format.space_after = Pt(8)
+            add_formatted_text_to_para(p, stripped, base_font="Times New Roman", base_size=9.5, base_color=DARK)
         elif stripped.startswith('**Keywords:**'):
             p.paragraph_format.space_before = Pt(4)
             p.paragraph_format.space_after = Pt(8)
@@ -444,4 +483,4 @@ if __name__ == '__main__':
     docx_named = 'docs/TriSpecWaveMambaUQ_Paper.docx'
     build_docx(md_file, docx_file)
     build_docx(md_file, docx_named)
-    print(f"Generated {docx_file} and {docx_named} successfully!")
+    print(f"Generated {docx_file} and {docx_named} successfully with embedded images!")

@@ -1,19 +1,20 @@
 # TriSpecWaveMambaUQ: Physics-Informed Multi-Spectral Super-Resolution with State Space Models and Calibrated Uncertainty Quantification for Sentinel-2 MSI
 
-**Khushalzz et al.**  
-*Laboratory for Geospatial Intelligence and Earth Observation Machine Learning*  
-*IEEE Transactions on Geoscience and Remote Sensing (TGRS) / Technical Manuscript*
+**AIES MINI PROJECT PAPER**  
+*Department of Computer Science & Engineering | Course: Artificial Intelligence & Expert Systems*  
+**Authors:** Khushalzz et al.  
+**Academic Year:** 2025–2026 | **Domain:** Deep Learning, Computer Vision & Satellite Remote Sensing
 
 ---
 
 ### Abstract
-Multispectral satellite imagery from the Sentinel-2 Multi-Spectral Instrument (MSI) is physically constrained by optical detector geometry, distributing twelve reflective spectral bands across three disparate spatial resolutions ($10\,\text{m}$, $20\,\text{m}$, and $60\,\text{m}$). Conventional single-image super-resolution (SISR) methods struggle with this multi-resolution data: Convolutional Neural Networks (CNNs) have small receptive fields, Vision Transformers (ViTs) incur prohibitive quadratic computational complexity $\mathcal{O}(N^2)$ causing GPU memory explosion on large satellite tiles, and standard generative models (GANs) hallucinate non-existent ground features without predictive confidence bounds.
+Multispectral satellite imagery from the European Space Agency's Sentinel-2 Multi-Spectral Instrument (MSI) is physically constrained by optical detector geometry, distributing twelve reflective spectral bands across three disparate spatial resolutions ($10\,\text{m}$, $20\,\text{m}$, and $60\,\text{m}$). Conventional single-image super-resolution (SISR) techniques fail to handle this multi-resolution data effectively: Convolutional Neural Networks (CNNs) have small receptive fields, Vision Transformers (ViTs) incur quadratic computational complexity $\mathcal{O}(N^2)$ causing GPU memory crashes on large satellite tiles, and standard Generative Adversarial Networks (GANs) hallucinate non-existent ground features without predictive confidence bounds.
 
-In this work, we propose **TriSpecWaveMambaUQ**, an end-to-end deep neural architecture ($6.17\,\text{M}$ parameters, $1.12\,\text{M}$ base backbone) for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ Ground Sampling Distance) with calibrated pixel-wise uncertainty quantification. Our model processes all 12 bands via a tri-stream grouped encoder aligned with native sensor resolutions, dynamically captures inter-band correlations via 3-node Spectral Graph Attention and continuous-wavelength 1D State Space Models (SpectralMamba, $\mathcal{O}(C)$), and losslessly decouples spatial features through 2D Haar Discrete Wavelet Transforms. Low-frequency background structures are routed through linear-complexity 2D SpatialMamba blocks ($\mathcal{O}(N)$), while high-frequency details pass through directional Strip Convolution stacks ($1\times7$ and $7\times1$). Dual output heads simultaneously reconstruct surface reflectance means ($\boldsymbol{\mu}$) and aleatoric log-variance uncertainty maps ($\log \boldsymbol{\sigma}^2$) under a heteroscedastic Gaussian negative log-likelihood objective regularized by physical sensor Modulation Transfer Function (MTF) degradation constraints.
+In this AIES mini project, we develop **TriSpecWaveMambaUQ**, an end-to-end deep neural architecture ($6.17\,\text{M}$ total parameters, $1.12\,\text{M}$ base backbone) for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ Ground Sampling Distance) with calibrated pixel-wise uncertainty quantification. Our model ingests all 12 bands via a tri-stream grouped encoder aligned with native sensor resolutions, dynamically captures inter-band correlations via 3-node Spectral Graph Attention and continuous-wavelength 1D State Space Models (SpectralMamba, $\mathcal{O}(C)$), and losslessly decouples spatial features through 2D Haar Discrete Wavelet Transforms. Low-frequency background structures are routed through linear-complexity 2D SpatialMamba blocks ($\mathcal{O}(N)$), while high-frequency details pass through directional Strip Convolution stacks ($1\times7$ and $7\times1$). Dual output heads simultaneously reconstruct surface reflectance means ($\boldsymbol{\mu}$) and aleatoric log-variance uncertainty maps ($\log \boldsymbol{\sigma}^2$) under a heteroscedastic Gaussian negative log-likelihood objective regularized by physical sensor Modulation Transfer Function (MTF) degradation constraints.
 
 Evaluated on unseen geographic test suites against Bicubic interpolation and the OpenSR-SRGAN teacher, our model achieves **$32.17\,\text{dB}$ PSNR** ($+2.13\,\text{dB}$ gain), **$0.8754$ SSIM**, an **$18.2\%$ reduction in Spectral Angle Mapper error ($0.0198\,\text{rad}$ / $1.13^\circ$)**, and a **$28.7\%$ reduction in NDVI MAE ($0.0161$)**, with an inference latency of **$24.96\,\text{ms}$** per tile and **$270\,\text{MB}$ peak VRAM**. Calibrated uncertainty maps reliably flag ambiguous parcel boundaries and cloud fringes, establishing an operational foundation for reliable Earth observation.
 
-**Keywords:** Sentinel-2 MSI, Multispectral Super-Resolution, State Space Models (SSM), Mamba, Haar Discrete Wavelet Transform, Uncertainty Quantification, Modulation Transfer Function (MTF).
+**Keywords:** Artificial Intelligence, Sentinel-2 MSI, Multispectral Super-Resolution, State Space Models (SSM), Mamba, Haar Discrete Wavelet Transform, Uncertainty Quantification, Modulation Transfer Function (MTF).
 
 ---
 
@@ -34,7 +35,7 @@ Super-resolving all twelve bands to a uniform sub-$10\,\text{m}$ resolution (spe
 4. **The Operational Reliability Void:** Automated downstream pipelines (e.g. crop insurance auditing) require calibrated confidence bounds. Current super-resolution models operate as deterministic black boxes with zero awareness of their own predictive uncertainty in complex terrain, cloud edges, or shadows.
 
 ### Core Contributions
-To resolve these bottlenecks, we introduce **TriSpecWaveMambaUQ**, an end-to-end physics-informed framework for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ GSD) across all 12 Sentinel-2 MSI bands:
+To resolve these bottlenecks, this AIES mini project introduces **TriSpecWaveMambaUQ**, an end-to-end physics-informed framework for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ GSD) across all 12 Sentinel-2 MSI bands:
 - **Tri-Stream Grouped Encoder:** Ingests bands at their native physical resolutions ($10\,\text{m}, 20\,\text{m}, 60\,\text{m}$) and fuses them via a learned Gated Bilinear Upsampler, avoiding destructive pre-interpolation.
 - **Continuous-Wavelength State Space Modeling:** Pairs a 3-node Spectral Graph Attention network with 1D `SpectralMamba` state-space blocks conditioned on central physical wavelengths $\lambda_b \in [443, 2190]\,\text{nm}$, achieving global cross-band context in linear $\mathcal{O}(C)$ complexity.
 - **Frequency-Decoupled Spatial Processing:** Leverages a 2D Haar Discrete Wavelet Transform (`HaarDWT2D`) to route low-frequency background features through a linear-complexity 2D `SpatialMamba` ($\mathcal{O}(N)$) and high-frequency edge details through directional `StripConv` stacks ($1\times7$ and $7\times1$).
@@ -120,6 +121,9 @@ Input: 12-Band Sentinel-2 MSI Cube (Native Resolutions)
 ========================================================================================
 ```
 
+![Figure 1: TriSpecWaveMambaUQ End-to-End System Architecture](diagrams/Simplified_Model_Overview.png)  
+**Figure 1:** *TriSpecWaveMambaUQ End-to-End Architecture Overview. Demonstrates the tri-stream grouped native encoder, gated bilinear fusion, 3-node spectral graph attention, 1D SpectralMamba, 2D Haar Wavelet frequency decoupling with SpatialMamba, and progressive upsampling terminating in dual predictive mean and aleatoric uncertainty heads.*
+
 ### B. Tri-Stream Native Feature Extraction and Gated Fusion
 Sentinel-2 bands are grouped by their native detector pixel pitch:
 $$\mathcal{I}_{10\text{m}} = \{2, 3, 4, 8\}, \quad \mathcal{I}_{20\text{m}} = \{5, 6, 7, 8\text{A}, 11, 12\}, \quad \mathcal{I}_{60\text{m}} = \{1, 9\}$$
@@ -170,6 +174,9 @@ The network is optimized end-to-end under four complementary loss functions:
 5. **Total Training Objective:**
    $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{hetero}} + \lambda_{\text{MTF}} \mathcal{L}_{\text{MTF}} + \lambda_{\text{SW}} \mathcal{L}_{\text{SW}} + \lambda_{\text{SAM}} \mathcal{L}_{\text{SAM}}$$
    configured with weights $\lambda_{\text{MTF}} = 0.1$, $\lambda_{\text{SW}} = 1.0$, and $\lambda_{\text{SAM}} = 0.05$.
+
+![Figure 2: Multi-Stage Distillation Training Curriculum](diagrams/TriSpecWave_Mamba_UQ_Training_Curriculum.png)  
+**Figure 2:** *Multi-Stage Knowledge Distillation and Training Curriculum. Demonstrates the distillation pipeline where the 4-band OpenSR-SRGAN teacher guides the 12-band student via Shifted-Window Charbonnier and Sobel gradient losses, combined with end-to-end sensor MTF degradation and heteroscedastic uncertainty optimization.*
 
 ---
 
@@ -226,6 +233,9 @@ We evaluate TriSpecWaveMambaUQ on two complementary datasets spanning diverse ag
 
 As shown in Table II, TriSpecWaveMambaUQ outperforms Bicubic interpolation by **$+2.13\,\text{dB}$ PSNR** and **$+0.0738$ SSIM**, while cutting SAM spectral error by **$18.2\%$** and NDVI MAE by **$28.7\%$**. Compared to OpenSR-SRGAN, our architecture is nearly $2\times$ faster, uses $75\%$ less VRAM, and scales super-resolution to **all 12 bands simultaneously**.
 
+![Figure 3: Qualitative 4x Super-Resolution Visual Comparison over Pune AOI](outputs/pune_comparison.png)  
+**Figure 3:** *Qualitative Super-Resolution Comparison over Pune Metropolitan Region (10m -> 2.5m). From left to right: Low-resolution Bicubic interpolation, OpenSR-SRGAN Teacher output, TriSpecWaveMambaUQ (Ours), and the High-Resolution Reference Target. Notice the sharp building outlines and crisp agricultural parcel boundaries without generative GAN artifacts.*
+
 ### Table III: Per-Band Mean Absolute Error (MAE) across Native Sensor Groups
 
 | Band Group | Band | Description | Wavelength ($\lambda$) | Native GSD | Bicubic MAE | Ours MAE | Improvement |
@@ -253,14 +263,21 @@ As shown in Table II, TriSpecWaveMambaUQ outperforms Bicubic interpolation by **
 
 ### E. Qualitative Fidelity & Uncertainty Calibration
 - **Structural Integrity:** Building footprints, road networks, and agricultural field boundaries exhibit crisp geometric separation without pixelation or high-frequency GAN texture noise.
-- **Uncertainty Calibration:** Predicted aleatoric variance $\boldsymbol{\sigma}^2$ remains low in homogeneous terrain ($\sigma_b^2 < 0.002$ in water and uniform crop canopies) and cleanly spikes along complex parcel transitions, building edges ($\sigma_b^2 \in [0.015, 0.045]$), and semi-transparent cloud fringes. The Spearman rank correlation between $\boldsymbol{\sigma}^2$ and absolute residual error reaches $\rho = 0.764$, confirming well-calibrated confidence bounds.
+- **Color Infrared (CIR) Evaluation:** As shown in Figure 5, rendering in False Color Infrared ($\text{RGB} \leftarrow [\text{B8}, \text{B4}, \text{B3}]$) highlights sharp red-edge boundaries around crop fields, confirming that agricultural spectroscopy is preserved during super-resolution.
+- **Uncertainty Calibration:** Predicted aleatoric variance $\boldsymbol{\sigma}^2$ (Figure 4) remains low in homogeneous terrain ($\sigma_b^2 < 0.002$ in water and uniform crop canopies) and cleanly spikes along complex parcel transitions, building edges ($\sigma_b^2 \in [0.015, 0.045]$), and semi-transparent cloud fringes. The Spearman rank correlation between $\boldsymbol{\sigma}^2$ and absolute residual error reaches $\rho = 0.764$, confirming well-calibrated confidence bounds.
+
+![Figure 4: Calibrated Pixel-Wise Aleatoric Uncertainty Heatmaps](outputs/pune_uncertainty.png)  
+**Figure 4:** *Calibrated Aleatoric Uncertainty Heatmaps ($\boldsymbol{\sigma}^2$) across Test Scenes. Notice how uncertainty remains near zero over homogeneous water bodies and agricultural fields, while automatically spiking along ambiguous building silhouettes, parcel boundaries, and atmospheric cloud fringes.*
+
+![Figure 5: False Color Infrared (CIR) Vegetative Canopy Comparison](outputs/pune_student_rgbn.png)  
+**Figure 5:** *False Color Infrared Composite (CIR: NIR Band 8 in Red, Red Band 4 in Green, Green Band 3 in Blue). Demonstrates the preservation of sharp vegetation canopy chlorophyll boundaries and urban infrastructure edges.*
 
 ### F. Architectural Ablation Studies
 
 ### Table V: Comprehensive Component Ablation Studies
 
 | Configuration | Wavelet Decoupling | MTF Sensor Loss | Shifted-Window Loss | Uncertainty Head | PSNR (dB) ↑ | SSIM ↑ | SAM (rad) ↓ | $\text{MAE}_{\text{NDVI}}$ ↓ |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **(A) Baseline CNN** | ✗ | ✗ | ✗ | ✗ | 30.62 | 0.8241 | 0.0235 | 0.0205 |
 | **(B) + Wavelet + Mamba** | ✓ | ✗ | ✗ | ✗ | 31.45 | 0.8520 | 0.0218 | 0.0182 |
 | **(C) + Shifted-Window Loss** | ✓ | ✗ | ✓ | ✗ | 31.78 | 0.8634 | 0.0210 | 0.0174 |
