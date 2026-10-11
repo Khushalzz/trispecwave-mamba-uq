@@ -9,7 +9,7 @@
 ### Abstract
 Multispectral satellite imagery from Sentinel-2 is constrained by physical detector geometry, distributing twelve spectral bands across three disparate spatial resolutions ($10\,\text{m}$, $20\,\text{m}$, and $60\,\text{m}$). While deep learning methods have significantly advanced single-image super-resolution (SISR), conventional Convolutional Neural Networks (CNNs) struggle with long-range spectral dependencies, and Vision Transformers (ViTs) suffer from quadratic computational complexity $\mathcal{O}(N^2)$. Furthermore, standard deterministic super-resolution models obscure hallucinated high-frequency artifacts, presenting critical reliability risks for downstream Earth observation tasks.
 
-In this work, we propose **TriSpecWaveMambaUQ**, a parameter-efficient ($6.17\,\text{M}$ parameter / $1.117\,\text{M}$ base backbone) deep neural architecture for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ equivalent GSD) with calibrated pixel-wise uncertainty quantification. Our model processes all 12 bands via a tri-stream grouped encoder aligned with native sensor resolutions, dynamically mixing inter-band correlations via a 3-node Spectral Graph Attention network and per-pixel continuous State Space Models (SpectralMamba). Spatial features are decomposed via 2D Haar Discrete Wavelet Transforms (HaarDWT), routing low-frequency components through SpatialMamba blocks for linear-complexity global contextualization ($\mathcal{O}(N)$) and high-frequency details through directional Strip Convolution stacks. Dual output heads simultaneously reconstruct predictive band means ($oldsymbol{\mu}$) and log-variance uncertainty maps ($\log oldsymbol{\sigma}^2$) optimized under a heteroscedastic Gaussian negative log-likelihood objective. 
+In this work, we propose **TriSpecWaveMambaUQ**, a parameter-efficient ($6.17\,\text{M}$ parameter / $1.117\,\text{M}$ base backbone) deep neural architecture for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ equivalent GSD) with calibrated pixel-wise uncertainty quantification. Our model processes all 12 bands via a tri-stream grouped encoder aligned with native sensor resolutions, dynamically mixing inter-band correlations via a 3-node Spectral Graph Attention network and per-pixel continuous State Space Models (SpectralMamba). Spatial features are decomposed via 2D Haar Discrete Wavelet Transforms (HaarDWT), routing low-frequency components through SpatialMamba blocks for linear-complexity global contextualization ($\mathcal{O}(N)$) and high-frequency details through directional Strip Convolution stacks. Dual output heads simultaneously reconstruct predictive band means ($\boldsymbol{\mu}$) and log-variance uncertainty maps ($\log \boldsymbol{\sigma}^2$) optimized under a heteroscedastic Gaussian negative log-likelihood objective. 
 
 Quantitative benchmarks against Bicubic interpolation and the state-of-the-art OpenSR-SRGAN teacher demonstrate that our framework achieves superior radiometric and structural fidelity: **$32.17\,\text{dB}$ PSNR** ($+2.13\,\text{dB}$ gain), **$0.8754$ SSIM**, an **$18.2\%$ reduction in Spectral Angle Mapper (SAM) error ($0.0198\,\text{rad}$ / $1.13^\circ$)**, and a **$28.7\%$ reduction in NDVI mean absolute error ($0.0161$)**, while executing in **$24.96\,\text{ms}$** per tile with only **$270\,\text{MB}$ peak VRAM**. Crucially, the model's calibrated uncertainty maps successfully localize ambiguous land-cover boundaries and cloud fringes, establishing an operational benchmark for reliable Earth observation.
 
@@ -49,6 +49,14 @@ The primary contributions of this work are as follows:
 ---
 
 
+## II. Related Work
+
+Single-Image Super-Resolution (SISR) has undergone a decade-long evolution across multiple architectural paradigms—from early convolutional neural networks to generative adversarial frameworks, vision transformers, and emerging state space models. In this section, we provide a systematic, chronological literature survey categorized across six distinct architectural families, evaluated specifically against the stringent physical and operational requirements of Sentinel-2 multispectral downscaling.
+
+### A. Chronological Comparative Literature Matrix
+
+The table below catalogs foundational and state-of-the-art super-resolution architectures spanning computer vision and remote sensing over the past decade (2014–2026), systematically evaluated across eight dimensions: Architecture Family, Target Domain, Spectral Bands Supported, Receptive Field & Complexity, Physics/MTF Consistency, Uncertainty Quantification (UQ), Key Strengths, and Fatal Flaws / Limitations in the Sentinel-2 context.
+
 The table below catalogs foundational and state-of-the-art super-resolution architectures spanning computer vision and remote sensing over the past decade (2014–2026), systematically categorized across the 6 major architectural paradigms and evaluated against the rigorous operational demands of Sentinel-2 multispectral downscaling.
 
 | Model & Citation | Architecture Family | Target Domain | Bands Supported | Receptive Field & Complexity | Physics / MTF Consistency | Uncertainty Quantification (UQ) | Key Strengths | Fatal Flaw / Limitation in Sentinel-2 Context |
@@ -75,8 +83,6 @@ The table below catalogs foundational and state-of-the-art super-resolution arch
 | **TriSpecWave-Mamba-UQ**<br>*(Proposed Frontier Model)* | Hybrid Wavelet-SSM + Heteroscedastic UQ | Multispectral Remote Sensing (Sentinel-2 L2A) | **Full 12 Bands** (10m: B2,3,4,8; 20m: B5,6,7,8A,11,12; 60m: B1,9) | **Global Receptive Field with Linear $\mathcal{O}(N)$ Spatial Complexity** (SpatialMamba) + $\mathcal{O}(C)$ Spectral State Space (SpectralMamba) | **Yes** (Physical sensor MTF/PSF degradation loss guarantees downscaled output strictly reconstructs original 10m/20m/60m observations) | **Yes** (Heteroscedastic Gaussian aleatoric uncertainty head parameterizing pixel-wise variance $\sigma_b^2(u, v)$ via NLL loss) | **Simultaneous 12-band $4\times$ downscaling to 2.5m GSD**; physical wavelength (nm) and GSD embeddings; Haar wavelet decomposition isolates structural flow for SpatialMamba and high-frequency details for directional StripConvs; distilled from OpenSR-SRGAN without hallucinatory instability; ultra-lightweight (1.117M params, 24.96 ms latency, 270 MB VRAM). | Slight smoothing on ultra-dense stochastic micro-textures compared to unconstrained GAN pseudo-hallucinations, but mathematically bounded and transparently flagged by aleatoric uncertainty maps. |
 
 ---
-
-## II. Related Work
 
 #### A. Deep Learning for Single-Image Super-Resolution: From Residual CNNs to Vision Transformers
 Single-Image Super-Resolution (SISR) has undergone a profound paradigm shift since the introduction of deep learning. Early investigations established the feasibility of learning end-to-end continuous mappings from low-resolution (LR) to high-resolution (HR) raster grids. Dong *et al.* [1] pioneered this domain with the Super-Resolution Convolutional Neural Network (SRCNN), mapping bicubic-interpolated RGB images through a three-layer convolutional structure. While foundational, SRCNN suffered from two severe bottlenecks: its computational complexity scaled in the target HR pixel space due to pre-upsampling, and its shallow receptive field restricted contextual feature aggregation. Kim *et al.* [2] mitigated training instability in deeper networks via the Very Deep Super-Resolution (VDSR) network, which incorporated 20 cascaded convolutional layers with global residual learning ($\hat{x} = x_{\text{bicubic}} + \mathcal{F}(x_{\text{bicubic}})$) and gradient clipping. However, VDSR remained constrained by the computational burden of pre-upscaled feature representations.
@@ -133,7 +139,7 @@ Under this formulation, the network naturally learns an internal spatial attenua
 
 ---
 
-### E. Architectural Positioning of TriSpecWaveMambaUQ at the SOTA Frontier
+### F. Architectural Positioning of TriSpecWaveMambaUQ at the SOTA Frontier
 
 ```
 ========================================================================================================================
@@ -681,10 +687,9 @@ with $S_{\text{warmup}} = 100$ steps and gradient clipping at $\|\mathbf{g}\|_2 
 | **UQ Heads & Skip** | `models/uq_heads.py:9-21`, `trispecwave_mamba_uq.py:90,113` | $\boldsymbol{\mu} = \boldsymbol{\mu}_{\text{res}} + \text{Interp}(W_{\text{skip}} * X)$, $s \in [-10, 5]$ | **Exact Match** (100% verified) |
 | **RGBN UNet Adapter** | `models/rgbn_unet_adapter.py:5-64` | 3-level UNet, zero-init output conv, residual clamp $[0, 1]$ | **Exact Match** (100% verified) |
 | **Sensor MTF/PSF Loss** | `losses/mtf_psf_loss.py:10-38` | Gaussian kernel size 5, $\sigma=1.2$, area downsampling | **Exact Match** (100% verified) |
-| **Heteroscedastic Loss** | `losses/heteroscedastic_loss.py:19-37` | $0.5 \exp(-s) \Vert y - \mu\Vert  + 0.5 s$, clamp $[-10, 5]$ | **Exact Match** (100% verified) |
+| **Heteroscedastic Loss** | `losses/heteroscedastic_loss.py:19-37` | $0.5 \exp(-s) \parallel y - \mu\parallel  + 0.5 s$, clamp $[-10, 5]$ | **Exact Match** (100% verified) |
 | **Shifted-Window Total Loss** | `scripts/train_sen2neon_6m_phase1.py:48-88` | Best-of-9 shifts $(\pm 1\text{ px})$, finite-diff $dx, dy$, nodata mask | **Exact Match** (100% verified) |
 | **Differential LR Optimizer** | `scripts/train_sen2neon_6m_phase1.py:15-46` | Backbone $\eta=10^{-5}$, Tail $\eta=10^{-4}$, weight decay exclusion | **Exact Match** (100% verified) |
-
 
 ## IV. Experimental Results and Discussion
 
@@ -1593,7 +1598,7 @@ Based on our findings, we formulate three actionable imperatives for researchers
 27. Y. Liu, Y. Tian, Y. Zhao, H. Yu, L. Xie, Y. Wang, Q. Ye, and Y. Liu, "VMamba: Visual state space model," in *Advances in Neural Information Processing Systems (NeurIPS)*, 2024.
 28. H. Guo, J. Li, T. Dai, Z. Ouyang, X. Ren, and S.-T. Xia, "MambaIR: A simple baseline for image restoration with state space model," in *Proceedings of the European Conference on Computer Vision (ECCV)*, 2024.
 29. L. Chen, X. Chu, X. Zhang, and J. Sun, "Simple baselines for image restoration," in *Proceedings of the European Conference on Computer Vision (ECCV)*, 2022, pp. 17–33.
-30. Y. Hou, Z. Ma, C. Liu, and C. C. Loy, "Learning to steer by predicting the future with a deep spatial-temporal network," in *Proc. IEEE CVPR*, 2019 (Strip pooling and directional convolutions).
+30. Y. Hou, Z. Ma, C. Liu, and C. C. Loy, "Learning to steer by predicting the future with a deep spatial-temporal network," in *Proc. IEEE CVPR*, 2019.
 31. N. K. Kruse, F. A. Kruse, and M. W. Gardner, "Extraction of high-resolution mineral mapping from Sentinel-2 MSI using spectral angles," *Remote Sensing of Environment*, vol. 201, pp. 231–245, 2017.
 32. European Space Agency (ESA), "Sentinel-2 MSI Level-2A Algorithm Theoretical Basis Document (ATBD)," *ESA SP-1322/2*, Tech. Rep., 2021.
 33. J. W. Rouse, R. H. Haas, J. A. Schell, and D. W. Deering, "Monitoring vegetation systems in the Great Plains with ERTS," *NASA Spec. Publ.*, vol. 351, p. 309, 1974.

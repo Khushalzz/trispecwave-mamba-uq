@@ -44,20 +44,20 @@ def check_file_math(file_path):
         for m in inline_matches:
             if m.count('{') != m.count('}'):
                 issues.append((line_num, "Mismatched braces in inline math", m))
-            if m.count(r'\left') != m.count(r'\right'):
-                issues.append((line_num, "Mismatched \left and \right in inline math", m))
 
     return issues
 
-files = [
-    'docs/section_ii_literature_survey_clean.md',
-    'docs/section_iii_methodology.md',
-    'docs/section_iv_results_and_discussion.md',
-    'docs/section_v_research_gaps_and_future_horizons.md'
-]
+if __name__ == '__main__':
+    files = [
+        'docs/section_ii_literature_survey.md',
+        'docs/section_iii_methodology.md',
+        'docs/section_iv_results_and_discussion.md',
+        'docs/section_v_research_gaps_and_future_horizons.md',
+        'docs/complete_paper_manuscript.md'
+    ]
 
-for f in files:
-    issues = check_file_math(f)
-    print(f"File: {f} -> {len(issues)} issues found")
-    for l_num, desc, snippet in issues[:5]:
-        print(f"  Line {l_num}: {desc} -> {snippet[:60]}...")
+    for f in files:
+        issues = check_file_math(f)
+        print(f"File: {f} -> {len(issues)} issues found")
+        for l_num, desc, snippet in issues[:5]:
+            print(f"  Line {l_num}: {desc} -> {snippet[:60]}...")

@@ -41,7 +41,7 @@ def clean_katex(text):
     return '\n'.join(cleaned_lines)
 
 # Load existing sections
-with open('docs/section_ii_literature_survey_clean.md', 'r', encoding='utf-8') as f:
+with open('docs/section_ii_literature_survey.md', 'r', encoding='utf-8') as f:
     sec2_raw = f.read()
 
 with open('docs/section_iii_methodology.md', 'r', encoding='utf-8') as f:
@@ -53,8 +53,8 @@ with open('docs/section_iv_results_and_discussion.md', 'r', encoding='utf-8') as
 with open('docs/section_v_research_gaps_and_future_horizons.md', 'r', encoding='utf-8') as f:
     sec5_raw = f.read()
 
-# Build Title, Frontmatter, Abstract, and Section I
-frontmatter = """# TriSpecWaveMambaUQ: Physics-Informed Multi-Spectral Super-Resolution with State Space Models and Calibrated Uncertainty Quantification for Sentinel-2 MSI
+# Build Title, Frontmatter, Abstract, and Section I using raw string!
+frontmatter = r"""# TriSpecWaveMambaUQ: Physics-Informed Multi-Spectral Super-Resolution with State Space Models and Calibrated Uncertainty Quantification for Sentinel-2 MSI
 
 **Khushalzz et al.**  
 *Laboratory for Geospatial Intelligence and Earth Observation Machine Learning*  
@@ -63,11 +63,11 @@ frontmatter = """# TriSpecWaveMambaUQ: Physics-Informed Multi-Spectral Super-Res
 ---
 
 ### Abstract
-Multispectral satellite imagery from Sentinel-2 is constrained by physical detector geometry, distributing twelve spectral bands across three disparate spatial resolutions ($10\\,\\text{m}$, $20\\,\\text{m}$, and $60\\,\\text{m}$). While deep learning methods have significantly advanced single-image super-resolution (SISR), conventional Convolutional Neural Networks (CNNs) struggle with long-range spectral dependencies, and Vision Transformers (ViTs) suffer from quadratic computational complexity $\\mathcal{O}(N^2)$. Furthermore, standard deterministic super-resolution models obscure hallucinated high-frequency artifacts, presenting critical reliability risks for downstream Earth observation tasks.
+Multispectral satellite imagery from Sentinel-2 is constrained by physical detector geometry, distributing twelve spectral bands across three disparate spatial resolutions ($10\,\text{m}$, $20\,\text{m}$, and $60\,\text{m}$). While deep learning methods have significantly advanced single-image super-resolution (SISR), conventional Convolutional Neural Networks (CNNs) struggle with long-range spectral dependencies, and Vision Transformers (ViTs) suffer from quadratic computational complexity $\mathcal{O}(N^2)$. Furthermore, standard deterministic super-resolution models obscure hallucinated high-frequency artifacts, presenting critical reliability risks for downstream Earth observation tasks.
 
-In this work, we propose **TriSpecWaveMambaUQ**, a parameter-efficient ($6.17\\,\\text{M}$ parameter / $1.117\\,\\text{M}$ base backbone) deep neural architecture for $4\\times$ multispectral super-resolution ($10\\,\\text{m} \\rightarrow 2.5\\,\\text{m}$ equivalent GSD) with calibrated pixel-wise uncertainty quantification. Our model processes all 12 bands via a tri-stream grouped encoder aligned with native sensor resolutions, dynamically mixing inter-band correlations via a 3-node Spectral Graph Attention network and per-pixel continuous State Space Models (SpectralMamba). Spatial features are decomposed via 2D Haar Discrete Wavelet Transforms (HaarDWT), routing low-frequency components through SpatialMamba blocks for linear-complexity global contextualization ($\mathcal{O}(N)$) and high-frequency details through directional Strip Convolution stacks. Dual output heads simultaneously reconstruct predictive band means ($\boldsymbol{\mu}$) and log-variance uncertainty maps ($\log \boldsymbol{\sigma}^2$) optimized under a heteroscedastic Gaussian negative log-likelihood objective. 
+In this work, we propose **TriSpecWaveMambaUQ**, a parameter-efficient ($6.17\,\text{M}$ parameter / $1.117\,\text{M}$ base backbone) deep neural architecture for $4\times$ multispectral super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ equivalent GSD) with calibrated pixel-wise uncertainty quantification. Our model processes all 12 bands via a tri-stream grouped encoder aligned with native sensor resolutions, dynamically mixing inter-band correlations via a 3-node Spectral Graph Attention network and per-pixel continuous State Space Models (SpectralMamba). Spatial features are decomposed via 2D Haar Discrete Wavelet Transforms (HaarDWT), routing low-frequency components through SpatialMamba blocks for linear-complexity global contextualization ($\mathcal{O}(N)$) and high-frequency details through directional Strip Convolution stacks. Dual output heads simultaneously reconstruct predictive band means ($\boldsymbol{\mu}$) and log-variance uncertainty maps ($\log \boldsymbol{\sigma}^2$) optimized under a heteroscedastic Gaussian negative log-likelihood objective. 
 
-Quantitative benchmarks against Bicubic interpolation and the state-of-the-art OpenSR-SRGAN teacher demonstrate that our framework achieves superior radiometric and structural fidelity: **$32.17\\,\\text{dB}$ PSNR** ($+2.13\\,\\text{dB}$ gain), **$0.8754$ SSIM**, an **$18.2\\%$ reduction in Spectral Angle Mapper (SAM) error ($0.0198\\,\\text{rad}$ / $1.13^\\circ$)**, and a **$28.7\\%$ reduction in NDVI mean absolute error ($0.0161$)**, while executing in **$24.96\\,\\text{ms}$** per tile with only **$270\\,\\text{MB}$ peak VRAM**. Crucially, the model's calibrated uncertainty maps successfully localize ambiguous land-cover boundaries and cloud fringes, establishing an operational benchmark for reliable Earth observation.
+Quantitative benchmarks against Bicubic interpolation and the state-of-the-art OpenSR-SRGAN teacher demonstrate that our framework achieves superior radiometric and structural fidelity: **$32.17\,\text{dB}$ PSNR** ($+2.13\,\text{dB}$ gain), **$0.8754$ SSIM**, an **$18.2\%$ reduction in Spectral Angle Mapper (SAM) error ($0.0198\,\text{rad}$ / $1.13^\circ$)**, and a **$28.7\%$ reduction in NDVI mean absolute error ($0.0161$)**, while executing in **$24.96\,\text{ms}$** per tile with only **$270\,\text{MB}$ peak VRAM**. Crucially, the model's calibrated uncertainty maps successfully localize ambiguous land-cover boundaries and cloud fringes, establishing an operational benchmark for reliable Earth observation.
 
 **Keywords:** Sentinel-2 MSI, Multispectral Super-Resolution, State Space Models (SSM), Mamba, Haar Discrete Wavelet Transform, Uncertainty Quantification, Physics-Informed Neural Networks, Modulation Transfer Function (MTF), Remote Sensing.
 
@@ -78,43 +78,63 @@ Quantitative benchmarks against Bicubic interpolation and the state-of-the-art O
 Satellite Earth observation provides the sensory foundation for planetary monitoring, climate change tracking, food security forecasting, and humanitarian disaster mitigation. Among contemporary spaceborne missions, the European Space Agency's (ESA) Copernicus Sentinel-2 constellation represents the operational gold standard in open-access optical Earth observation. The Multi-Spectral Instrument (MSI) aboard Sentinel-2 acquires 12 distinct reflective spectral bands spanning from the visible and near-infrared (VNIR) to the short-wave infrared (SWIR) spectrum. 
 
 However, optical satellite payload engineering is fundamentally governed by rigorous trade-offs between orbital swath width, Signal-to-Noise Ratio (SNR), satellite mass/volume constraints, and spatial detector sampling. Consequently, the Sentinel-2 MSI sensor distributes its 12 reflective bands across three heterogeneous spatial Ground Sampling Distances (GSD):
-- **$10\\,\\text{m}$ High-Resolution Bands:** Band 2 (Blue, $490\\,\\text{nm}$), Band 3 (Green, $560\\,\\text{nm}$), Band 4 (Red, $665\\,\\text{nm}$), and Band 8 (Broad NIR, $842\\,\\text{nm}$).
-- **$20\\,\\text{m}$ Medium-Resolution Bands:** Band 5 (Red Edge 1, $705\\,\\text{nm}$), Band 6 (Red Edge 2, $740\\,\\text{nm}$), Band 7 (Red Edge 3, $783\\,\\text{nm}$), Band 8A (Narrow NIR, $865\\,\\text{nm}$), Band 11 (SWIR-1, $1610\\,\\text{nm}$), and Band 12 (SWIR-2, $2190\\,\\text{nm}$).
-- **$60\\,\\text{m}$ Coarse Atmospheric Bands:** Band 1 (Coastal Aerosol, $443\\,\\text{nm}$) and Band 9 (Water Vapor, $945\\,\\text{nm}$). *(Band 10 Cirrus is omitted from surface reflectance processing as it measures upper tropospheric cirrus opacity without reaching the ground surface).*
+- **$10\,\text{m}$ High-Resolution Bands:** Band 2 (Blue, $490\,\text{nm}$), Band 3 (Green, $560\,\text{nm}$), Band 4 (Red, $665\,\text{nm}$), and Band 8 (Broad NIR, $842\,\text{nm}$).
+- **$20\,\text{m}$ Medium-Resolution Bands:** Band 5 (Red Edge 1, $705\,\text{nm}$), Band 6 (Red Edge 2, $740\,\text{nm}$), Band 7 (Red Edge 3, $783\,\text{nm}$), Band 8A (Narrow NIR, $865\,\text{nm}$), Band 11 (SWIR-1, $1610\,\text{nm}$), and Band 12 (SWIR-2, $2190\,\text{nm}$).
+- **$60\,\text{m}$ Coarse Atmospheric Bands:** Band 1 (Coastal Aerosol, $443\,\text{nm}$) and Band 9 (Water Vapor, $945\,\text{nm}$). *(Band 10 Cirrus is omitted from surface reflectance processing as it measures upper tropospheric cirrus opacity without reaching the ground surface).*
 
-Super-resolving all 12 bands to a uniform sub-$10\\,\\text{m}$ resolution (specifically, a $4\\times$ factor downscaling to $2.5\\,\\text{m}$ equivalent GSD) is essential for modern high-precision geospatial analytics. Sub-$10\\,\\text{m}$ multispectral resolution unlocks smallholder agricultural parcel delineation, precision crop nitrogen and chlorophyll mapping via narrow red-edge bands, wildfire burn-scar severity zoning via SWIR indices, urban building rooftop classification, and hydrological runoff modeling.
+Super-resolving all 12 bands to a uniform sub-$10\,\text{m}$ resolution (specifically, a $4\times$ factor downscaling to $2.5\,\text{m}$ equivalent GSD) is essential for modern high-precision geospatial analytics. Sub-$10\,\text{m}$ multispectral resolution unlocks smallholder agricultural parcel delineation, precision crop nitrogen and chlorophyll mapping via narrow red-edge bands, wildfire burn-scar severity zoning via SWIR indices, urban building rooftop classification, and hydrological runoff modeling.
 
 Despite substantial research in Single-Image Super-Resolution (SISR), four fundamental bottlenecks hinder the operational deployment of existing deep learning architectures to Sentinel-2 multispectral downscaling:
 
-1. **Native Sensor Resolution Heterogeneity and Spectral Distortion:** Most SISR architectures are designed for natural 3-channel RGB imagery with uniform pixel sampling. Applying these models to Sentinel-2 requires naively upsampling coarse $20\\,\\text{m}$ and $60\\,\\text{m}$ bands via bilinear or bicubic interpolation prior to feature extraction. This crude pre-upsampling obscures native sensor Point Spread Functions (PSF), blurs fine-scale spectral band correlations, and induces severe radiometric distortion across downstream vegetation and moisture indices.
-2. **The Receptive Field vs. Complexity Dilemma:** Conventional Convolutional Neural Networks (CNNs) are bounded by localized receptive fields, failing to aggregate macro-scale geographical context (such as winding river channels, agricultural field topologies, and transportation grids). Conversely, Vision Transformers (ViTs) introduce global self-attention but incur quadratic computational and memory complexity $\\mathcal{O}((H \\times W)^2)$ relative to image dimensions. When applied to large satellite orthomosaics, ViTs require artificial spatial windowing that introduces visible tiling artifacts along block boundaries and creates prohibitive memory footprints.
-3. **The Perception-Distortion Dilemma and Hallucination Risk:** As formalized by Blau and Michaeli, optimizing purely for pixel-distortion metrics ($L_1$ or $L_2$ regression) forces networks to output the conditional posterior mean $\\mathbb{E}[x \\mid y]$, producing over-smoothed, blurry boundaries. Generative Adversarial Networks (GANs) and unconstrained diffusion models synthesize visually crisp high-frequency textures, but do so by sampling ungrounded modes of the posterior. In Earth observation, these generative hallucinations create spurious roads, non-existent structures, or artificial crop boundaries that corrupt quantitative scientific analysis.
+1. **Native Sensor Resolution Heterogeneity and Spectral Distortion:** Most SISR architectures are designed for natural 3-channel RGB imagery with uniform pixel sampling. Applying these models to Sentinel-2 requires naively upsampling coarse $20\,\text{m}$ and $60\,\text{m}$ bands via bilinear or bicubic interpolation prior to feature extraction. This crude pre-upsampling obscures native sensor Point Spread Functions (PSF), blurs fine-scale spectral band correlations, and induces severe radiometric distortion across downstream vegetation and moisture indices.
+2. **The Receptive Field vs. Complexity Dilemma:** Conventional Convolutional Neural Networks (CNNs) are bounded by localized receptive fields, failing to aggregate macro-scale geographical context (such as winding river channels, agricultural field topologies, and transportation grids). Conversely, Vision Transformers (ViTs) introduce global self-attention but incur quadratic computational and memory complexity $\mathcal{O}((H \times W)^2)$ relative to image dimensions. When applied to large satellite orthomosaics, ViTs require artificial spatial windowing that introduces visible tiling artifacts along block boundaries and creates prohibitive memory footprints.
+3. **The Perception-Distortion Dilemma and Hallucination Risk:** As formalized by Blau and Michaeli, optimizing purely for pixel-distortion metrics ($L_1$ or $L_2$ regression) forces networks to output the conditional posterior mean $\mathbb{E}[x \mid y]$, producing over-smoothed, blurry boundaries. Generative Adversarial Networks (GANs) and unconstrained diffusion models synthesize visually crisp high-frequency textures, but do so by sampling ungrounded modes of the posterior. In Earth observation, these generative hallucinations create spurious roads, non-existent structures, or artificial crop boundaries that corrupt quantitative scientific analysis.
 4. **The Operational Reliability Void:** Operational automated decision pipelines (e.g. disaster relief logistics or automated crop subsidy auditing) require calibrated confidence metrics to determine when a model's prediction is physically trustworthy. Current super-resolution models operate as deterministic black boxes, providing point predictions with zero awareness of their own predictive uncertainty in ambiguous, shadow-covered, or atmospherically contaminated regions.
 
 ### Our Contributions
-To resolve these interconnected challenges, this paper introduces **TriSpecWaveMambaUQ**, an end-to-end physics-informed deep learning architecture designed specifically for joint $4\\times$ super-resolution ($10\\,\\text{m} \\rightarrow 2.5\\,\\text{m}$ GSD) across all 12 Sentinel-2 MSI spectral bands with calibrated uncertainty quantification. 
+To resolve these interconnected challenges, this paper introduces **TriSpecWaveMambaUQ**, an end-to-end physics-informed deep learning architecture designed specifically for joint $4\times$ super-resolution ($10\,\text{m} \rightarrow 2.5\,\text{m}$ GSD) across all 12 Sentinel-2 MSI spectral bands with calibrated uncertainty quantification. 
 
 The primary contributions of this work are as follows:
-- **Tri-Stream Grouped Encoder with Resolution Alignment:** We develop a dedicated tri-stream grouped convolutional encoder that directly ingests bands at their native spatial sampling rates ($10\\,\\text{m}$, $20\\,\\text{m}$, and $60\\,\\text{m}$), fusing multi-resolution features via a lightweight Gated Bilinear Upsampler to preserve native sensor radiometry.
-- **Continuous State Space Spectral Modeling:** We introduce a 3-node Spectral Graph Attention network paired with a continuous-wavelength State Space Model (`SpectralMamba`). By conditioning the 1D selective state space scan on physical electromagnetic wavelengths (in nanometers) and native GSDs (in meters), the network explicitly captures non-linear inter-band radiative transfer dynamics across the full electromagnetic spectrum with linear channel complexity $\\mathcal{O}(C)$.
-- **Frequency-Decoupled Spatial Processing via Haar Wavelets and 2D SpatialMamba:** We decouple spatial feature representations into distinct frequency regimes using a 2D Haar Discrete Wavelet Transform (`HaarDWT2D`). Low-frequency approximation features ($LL$) are contextualized using a 2D multi-direction `SpatialMamba` block with strictly linear spatial complexity $\\mathcal{O}(N)$, while high-frequency directional subbands ($LH, HL, HH$) are routed through anisotropic `StripConv` stacks ($1\\times7$ and $7\\times1$ kernels) and Non-linear Activation Free (`NAFBlock`) layers to trace linear anthropogenic boundaries.
-- **Closed-Loop Physical Sensor MTF Degradation Loss:** To prevent hallucinatory artifacts and spectral drift, we formulate an explicit optical Modulation Transfer Function (MTF) degradation loss. By modeling the 2D Gaussian optical Point Spread Function (PSF) of the Sentinel-2 sensor, our objective guarantees that mathematically downscaling the super-resolved $2.5\\,\\text{m}$ output strictly conserves the measured sensor energy across all 12 bands.
-- **Calibrated Heteroscedastic Uncertainty Quantification:** We equip the network with dual projection heads that simultaneously predict the 12-band surface reflectance mean $\\boldsymbol{\mu}$ and the pixel-wise aleatoric log-variance $\\log \\boldsymbol{\sigma}^2$. Optimized under a heteroscedastic Gaussian Negative Log-Likelihood (NLL) objective, our uncertainty maps provide spatial confidence metrics that pinpoint ambiguous terrain transitions and cloud boundaries.
-- **State-of-the-Art Pareto-Optimal Performance:** We demonstrate through extensive quantitative benchmarks on unseen multi-terrain test scenes that TriSpecWaveMambaUQ achieves **$32.17\\,\\text{dB}$ PSNR**, **$0.8754$ SSIM**, and a **$0.0198\\,\\text{rad}$ SAM** ($1.13^\\circ$), outperforming bicubic baselines by $+2.13\\,\\text{dB}$ and reducing spectral distortion by $18.2\\%$, while operating at a compact **$6.17\\,\\text{M}$ total parameter footprint** ($1.117\\,\\text{M}$ base backbone), a **$24.96\\,\\text{ms}$ inference latency**, and **$270\\,\\text{MB}$ peak VRAM**.
+- **Tri-Stream Grouped Encoder with Resolution Alignment:** We develop a dedicated tri-stream grouped convolutional encoder that directly ingests bands at their native spatial sampling rates ($10\,\text{m}$, $20\,\text{m}$, and $60\,\text{m}$), fusing multi-resolution features via a lightweight Gated Bilinear Upsampler to preserve native sensor radiometry.
+- **Continuous State Space Spectral Modeling:** We introduce a 3-node Spectral Graph Attention network paired with a continuous-wavelength State Space Model (`SpectralMamba`). By conditioning the 1D selective state space scan on physical electromagnetic wavelengths (in nanometers) and native GSDs (in meters), the network explicitly captures non-linear inter-band radiative transfer dynamics across the full electromagnetic spectrum with linear channel complexity $\mathcal{O}(C)$.
+- **Frequency-Decoupled Spatial Processing via Haar Wavelets and 2D SpatialMamba:** We decouple spatial feature representations into distinct frequency regimes using a 2D Haar Discrete Wavelet Transform (`HaarDWT2D`). Low-frequency approximation features ($LL$) are contextualized using a 2D multi-direction `SpatialMamba` block with strictly linear spatial complexity $\mathcal{O}(N)$, while high-frequency directional subbands ($LH, HL, HH$) are routed through anisotropic `StripConv` stacks ($1\times7$ and $7\times1$ kernels) and Non-linear Activation Free (`NAFBlock`) layers to trace linear anthropogenic boundaries.
+- **Closed-Loop Physical Sensor MTF Degradation Loss:** To prevent hallucinatory artifacts and spectral drift, we formulate an explicit optical Modulation Transfer Function (MTF) degradation loss. By modeling the 2D Gaussian optical Point Spread Function (PSF) of the Sentinel-2 sensor, our objective guarantees that mathematically downscaling the super-resolved $2.5\,\text{m}$ output strictly conserves the measured sensor energy across all 12 bands.
+- **Calibrated Heteroscedastic Uncertainty Quantification:** We equip the network with dual projection heads that simultaneously predict the 12-band surface reflectance mean $\boldsymbol{\mu}$ and the pixel-wise aleatoric log-variance $\log \boldsymbol{\sigma}^2$. Optimized under a heteroscedastic Gaussian Negative Log-Likelihood (NLL) objective, our uncertainty maps provide spatial confidence metrics that pinpoint ambiguous terrain transitions and cloud boundaries.
+- **State-of-the-Art Pareto-Optimal Performance:** We demonstrate through extensive quantitative benchmarks on unseen multi-terrain test scenes that TriSpecWaveMambaUQ achieves **$32.17\,\text{dB}$ PSNR**, **$0.8754$ SSIM**, and a **$0.0198\,\text{rad}$ SAM** ($1.13^\circ$), outperforming bicubic baselines by $+2.13\,\text{dB}$ and reducing spectral distortion by $18.2\%$, while operating at a compact **$6.17\,\text{M}$ total parameter footprint** ($1.117\,\text{M}$ base backbone), a **$24.96\,\text{ms}$ inference latency**, and **$270\,\text{MB}$ peak VRAM**.
 
 ---
 """
 
-# Now clean up Section II
-# Remove the first deliverable header and clean section title
+# Format Section II cleanly
+# Ensure ## II. Related Work is at the top of Section II
 sec2_clean = sec2_raw
-# Replace Deliverable headers with clean IEEE headers
+# Remove old top headers if present
 sec2_clean = re.sub(r'# Academic Literature Survey:.*?\n\n', '', sec2_clean, flags=re.DOTALL)
 sec2_clean = re.sub(r'\*\*Target Submission Venue Profile:\*\*.*?\n---\n\n', '', sec2_clean, flags=re.DOTALL)
 sec2_clean = re.sub(r'## Deliverable 1: Chronological Comparative Literature Matrix\n\n', '', sec2_clean)
 sec2_clean = re.sub(r'## Deliverable 2: Academic Synthesis Text \("Section II: Related Work"\)\n\n', '', sec2_clean)
-sec2_clean = re.sub(r'### II\. RELATED WORK\n\n', '## II. Related Work\n\n', sec2_clean)
-sec2_clean = re.sub(r'## Deliverable 3: Positioning Paragraph:.*?\n\n', '### E. Architectural Positioning of TriSpecWaveMambaUQ at the SOTA Frontier\n\n', sec2_clean)
+sec2_clean = re.sub(r'### II\. RELATED WORK\n\n', '', sec2_clean)
+sec2_clean = re.sub(r'## Deliverable 3: Positioning Paragraph:.*?\n\n', '### F. Architectural Positioning of TriSpecWaveMambaUQ at the SOTA Frontier\n\n', sec2_clean)
+
+# Section II header and introductory text
+sec2_prefix = """## II. Related Work
+
+Single-Image Super-Resolution (SISR) has undergone a decade-long evolution across multiple architectural paradigms—from early convolutional neural networks to generative adversarial frameworks, vision transformers, and emerging state space models. In this section, we provide a systematic, chronological literature survey categorized across six distinct architectural families, evaluated specifically against the stringent physical and operational requirements of Sentinel-2 multispectral downscaling.
+
+### A. Chronological Comparative Literature Matrix
+
+The table below catalogs foundational and state-of-the-art super-resolution architectures spanning computer vision and remote sensing over the past decade (2014–2026), systematically evaluated across eight dimensions: Architecture Family, Target Domain, Spectral Bands Supported, Receptive Field & Complexity, Physics/MTF Consistency, Uncertainty Quantification (UQ), Key Strengths, and Fatal Flaws / Limitations in the Sentinel-2 context.
+"""
+
+# Replace the text before the table
+if "The table below catalogs" in sec2_clean:
+    parts = sec2_clean.split("The table below catalogs", 1)
+    # The part after includes foundational...
+    sec2_body = "The table below catalogs" + parts[1]
+else:
+    sec2_body = sec2_clean
+
+sec2_formatted = f"{sec2_prefix}\n{sec2_body}"
 
 # Section III
 sec3_clean = sec3_raw
@@ -175,7 +195,7 @@ references = """
 27. Y. Liu, Y. Tian, Y. Zhao, H. Yu, L. Xie, Y. Wang, Q. Ye, and Y. Liu, "VMamba: Visual state space model," in *Advances in Neural Information Processing Systems (NeurIPS)*, 2024.
 28. H. Guo, J. Li, T. Dai, Z. Ouyang, X. Ren, and S.-T. Xia, "MambaIR: A simple baseline for image restoration with state space model," in *Proceedings of the European Conference on Computer Vision (ECCV)*, 2024.
 29. L. Chen, X. Chu, X. Zhang, and J. Sun, "Simple baselines for image restoration," in *Proceedings of the European Conference on Computer Vision (ECCV)*, 2022, pp. 17–33.
-30. Y. Hou, Z. Ma, C. Liu, and C. C. Loy, "Learning to steer by predicting the future with a deep spatial-temporal network," in *Proc. IEEE CVPR*, 2019 (Strip pooling and directional convolutions).
+30. Y. Hou, Z. Ma, C. Liu, and C. C. Loy, "Learning to steer by predicting the future with a deep spatial-temporal network," in *Proc. IEEE CVPR*, 2019.
 31. N. K. Kruse, F. A. Kruse, and M. W. Gardner, "Extraction of high-resolution mineral mapping from Sentinel-2 MSI using spectral angles," *Remote Sensing of Environment*, vol. 201, pp. 231–245, 2017.
 32. European Space Agency (ESA), "Sentinel-2 MSI Level-2A Algorithm Theoretical Basis Document (ATBD)," *ESA SP-1322/2*, Tech. Rep., 2021.
 33. J. W. Rouse, R. H. Haas, J. A. Schell, and D. W. Deering, "Monitoring vegetation systems in the Great Plains with ERTS," *NASA Spec. Publ.*, vol. 351, p. 309, 1974.
@@ -189,7 +209,7 @@ references = """
 """
 
 # Combine all components
-full_paper = f"{frontmatter}\n\n{sec2_clean}\n\n{sec3_clean}\n\n{sec4_clean}\n\n{sec5_clean}\n\n{references}"
+full_paper = f"{frontmatter}\n\n{sec2_formatted}\n\n{sec3_clean}\n\n{sec4_clean}\n\n{sec5_clean}\n\n{references}"
 
 # Clean all KaTeX expressions across the entire document
 full_paper_clean = clean_katex(full_paper)
